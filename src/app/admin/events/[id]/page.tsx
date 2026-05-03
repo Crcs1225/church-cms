@@ -90,7 +90,7 @@ function EventDetailContent({
       <div className="text-center py-12">
         <p className="text-text-secondary mb-4">{error || "Event not found"}</p>
         <Link href="/admin/events">
-          <Button variant="outline">Back to Events</Button>
+          <Button variant="secondary">Back to Events</Button>
         </Link>
       </div>
     );
@@ -149,14 +149,14 @@ function EventDetailContent({
 
         <div className="flex gap-md">
           <Link href={`/admin/events/${event.publicId}/edit`}>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="secondary" className="flex items-center gap-2">
               <Edit2 className="h-4 w-4" />
               Edit
             </Button>
           </Link>
           <Button
-            variant="outline"
-            className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+            variant="destructive"
+            className="flex items-center gap-2"
             onClick={handleDelete}
             disabled={isDeleting}
           >

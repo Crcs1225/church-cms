@@ -109,7 +109,7 @@ function EditEventContent({
       <div className="text-center py-12">
         <p className="text-text-secondary mb-4">{error || "Event not found"}</p>
         <Link href="/admin/events">
-          <Button variant="outline">Back to Events</Button>
+          <Button variant="secondary">Back to Events</Button>
         </Link>
       </div>
     );

@@ -60,7 +60,7 @@ export default function EventsPage() {
 
           <div className="flex gap-md flex-wrap">
             <Link href="/admin/events/calendar">
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="secondary" className="flex items-center gap-2">
                 <CalendarIcon className="h-4 w-4" />
                 <span>View Calendar</span>
               </Button>

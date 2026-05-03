@@ -126,7 +126,7 @@ export default function EventForm({
 
       <div className="flex gap-md">
         <Link href={cancelHref}>
-          <Button variant="outline">Cancel</Button>
+          <Button variant="secondary">Cancel</Button>
         </Link>
         <Button type="submit" disabled={isSubmitting} size="lg">
           {isSubmitting ? "Saving..." : submitLabel}
