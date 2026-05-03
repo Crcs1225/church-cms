@@ -121,13 +121,20 @@ function EventDetailContent({
 
   return (
     <div className="space-y-lg">
-      {/* Back button */}
-      <Link href="/admin/events">
-        <Button variant="ghost" size="sm" className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Events
-        </Button>
-      </Link>
+      {/* Navigation buttons */}
+      <div className="flex gap-md">
+        <Link href="/admin/events">
+          <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Events
+          </Button>
+        </Link>
+        <Link href="/admin/events/calendar">
+          <Button variant="ghost" size="sm">
+            View Calendar
+          </Button>
+        </Link>
+      </div>
 
       {/* Header with actions */}
       <div className="flex items-start justify-between">
