@@ -466,3 +466,6 @@ Caused by:
 ⚠ Fast Refresh had to perform a full reload when ch-management\\node_modules\\lucide-react\\dist\\esm\\Icon.mjs","ids":["default"]}, ch-management\\node_modules\\next\\dist\\client\\app-dir\\link.js","ids":[]}, ch-management\\src\\components\\ui\\deletion-confirm-modal.tsx","ids":[]}, ch-management\\src\\components\\ui\\modal.tsx","ids":[]} changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
  GET /admin/finances 200 in 705ms (next.js: 51ms, application-code: 654ms)
  GET /admin/finances 200 in 188ms (next.js: 20ms, application-code: 168ms)
+ GET /admin/finances 200 in 3.6s (next.js: 56ms, application-code: 3.5s)
+ GET /admin/finances 200 in 177ms (next.js: 15ms, application-code: 162ms)
+ GET /admin 200 in 279ms (next.js: 50ms, application-code: 230ms)
