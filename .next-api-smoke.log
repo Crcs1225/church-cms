@@ -1,0 +1,468 @@
+▲ Next.js 16.2.4 (webpack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env
+✓ Ready in 1706ms
+
+○ Compiling /api/member-types ...
+ GET / 200 in 20.5s (next.js: 19.7s, application-code: 769ms)
+ GET /api/member-types 200 in 24.5s (next.js: 23.3s, application-code: 1160ms)
+ GET /admin/members 200 in 25.5s (next.js: 24.1s, application-code: 1445ms)
+○ Compiling /admin ...
+ GET /api/members 200 in 6.4s (next.js: 6.1s, application-code: 319ms)
+ GET /admin 200 in 3.9s (next.js: 3.3s, application-code: 615ms)
+○ Compiling /api/finances/categories ...
+ GET /api/finances/categories 200 in 3.5s (next.js: 3.4s, application-code: 20ms)
+○ Compiling /api/finances/income ...
+ GET /api/finances/income 200 in 5.0s (next.js: 4.7s, application-code: 228ms)
+ GET /admin/members 200 in 3.8s (next.js: 3.2s, application-code: 614ms)
+ GET /api/finances/expenses 200 in 2.9s (next.js: 2.9s, application-code: 25ms)
+ GET /api/finances/summary 200 in 2.5s (next.js: 2.4s, application-code: 36ms)
+○ Compiling /admin/finances ...
+ GET /admin/finances 200 in 7.6s (next.js: 7.4s, application-code: 126ms)
+ GET /admin/members 200 in 160ms (next.js: 43ms, application-code: 117ms)
+ GET /admin/members 200 in 18ms (next.js: 4ms, application-code: 14ms)
+ GET /admin/members 200 in 104ms (next.js: 5ms, application-code: 99ms)
+ GET /admin/members 200 in 1144ms (next.js: 628ms, application-code: 515ms)
+ GET /admin/members/new 200 in 2.6s (next.js: 2.4s, application-code: 167ms)
+ POST /api/members 201 in 3.1s (next.js: 2.9s, application-code: 183ms)
+○ Compiling /admin/members/[id] ...
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 5.4s (next.js: 5.2s, application-code: 146ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 113ms (next.js: 12ms, application-code: 101ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 329ms (next.js: 14ms, application-code: 315ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 480ms (next.js: 59ms, application-code: 421ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 1132ms (next.js: 490ms, application-code: 642ms)
+⨯ TypeError: Cannot read properties of undefined (reading 'split')
+    at getInitials (src\components\ui\avatar.tsx:10:6)
+    at Avatar (src\components\ui\avatar.tsx:26:8)
+   8 | function getInitials(name: string) {
+   9 |   return name
+> 10 |     .split(" ")
+     |      ^
+  11 |     .filter(Boolean)
+  12 |     .slice(0, 2)
+  13 |     .map((part) => part[0]?.toUpperCase()) {
+  digest: '3966386736'
+}
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 384ms (next.js: 99ms, application-code: 285ms)
+⨯ TypeError: Cannot read properties of undefined (reading 'split')
+    at getInitials (src\components\ui\avatar.tsx:10:6)
+    at Avatar (src\components\ui\avatar.tsx:26:8)
+   8 | function getInitials(name: string) {
+   9 |   return name
+> 10 |     .split(" ")
+     |      ^
+  11 |     .filter(Boolean)
+  12 |     .slice(0, 2)
+  13 |     .map((part) => part[0]?.toUpperCase()) {
+  digest: '3966386736'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'length')
+    at MemberGivingHistory (src\components\members\member-giving-history.tsx:37:25)
+  35 |           </thead>
+  36 |           <tbody className="divide-y divide-border">
+> 37 |             {givingRows.length > 0 ? (
+     |                         ^
+  38 |               givingRows.map((row) => (
+  39 |                 <tr key={row.publicId} className="hover:bg-background">
+  40 |                   <td className="px-6 py-4 text-sm">{row.date}</td> {
+  digest: '3525753130'
+}
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 500 in 503ms (next.js: 105ms, application-code: 399ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 811ms (next.js: 240ms, application-code: 571ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 354ms (next.js: 118ms, application-code: 236ms)
+ GET /admin/members/c9243843-9afa-47c4-b9c3-ed05c4745143 200 in 361ms (next.js: 24ms, application-code: 337ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 788ms (next.js: 364ms, application-code: 424ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 342ms (next.js: 151ms, application-code: 192ms)
+ GET /admin/members/c9243843-9afa-47c4-b9c3-ed05c4745143 200 in 1527ms (next.js: 50ms, application-code: 1476ms)
+ GET /admin/members 200 in 418ms (next.js: 123ms, application-code: 295ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 136ms (next.js: 29ms, application-code: 107ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 598ms (next.js: 288ms, application-code: 310ms)
+⨯ ./src/components/members/member-form.tsx
+Module parse failed: Identifier 'payload' has already been declared (65:14)
+|             body: JSON.stringify(payload)
+|         });
+>         const payload = await response.json();
+|         setIsSubmitting(false);
+|         if (!response.ok) {
+
+Import trace for requested module:
+./src/components/members/member-form.tsx
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 417ms (next.js: 207ms, application-code: 210ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 818ms (next.js: 13ms, application-code: 806ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 100ms (next.js: 6ms, application-code: 94ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 712ms (next.js: 20ms, application-code: 691ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 622ms (next.js: 8ms, application-code: 614ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 105ms (next.js: 14ms, application-code: 91ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 2.8s (next.js: 2.5s, application-code: 302ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 131ms (next.js: 6ms, application-code: 124ms)
+○ Compiling /api/members/[id] ...
+ PATCH /api/members/c9243843-9afa-47c4-b9c3-ed05c4745143 200 in 10.2s (next.js: 10.1s, application-code: 150ms)
+○ Compiling /api/member-types ...
+ GET /api/member-types 200 in 6.0s (next.js: 5.9s, application-code: 27ms)
+ GET /api/members 200 in 2.1s (next.js: 2.0s, application-code: 35ms)
+ GET /api/finances/categories 200 in 2.1s (next.js: 2.1s, application-code: 16ms)
+ GET /admin/members/c9243843-9afa-47c4-b9c3-ed05c4745143/edit 200 in 11.3s (next.js: 10.9s, application-code: 451ms)
+ GET /api/finances/income 200 in 1783ms (next.js: 1769ms, application-code: 13ms)
+ GET /api/finances/expenses 200 in 1087ms (next.js: 1073ms, application-code: 14ms)
+ GET /api/finances/summary 200 in 1582ms (next.js: 1551ms, application-code: 31ms)
+[browser] ./src/components/members/member-form.tsx
+Module parse failed: Identifier 'payload' has already been declared (63:14)
+|             body: JSON.stringify(payload)
+|         });
+>         const payload = await response.json();
+|         setIsSubmitting(false);
+|         if (!response.ok) {
+
+Import trace for requested module:
+./src/components/members/member-form.tsx 
+[browser] ./src/components/members/member-form.tsx
+Module parse failed: Identifier 'payload' has already been declared (65:14)
+|             body: JSON.stringify(payload)
+|         });
+>         const payload = await response.json();
+|         setIsSubmitting(false);
+|         if (!response.ok) {
+
+Import trace for requested module:
+./src/components/members/member-form.tsx 
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87/edit 200 in 291ms (next.js: 131ms, application-code: 160ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 171ms (next.js: 70ms, application-code: 101ms)
+ GET /admin/members 200 in 156ms (next.js: 60ms, application-code: 96ms)
+ GET /admin/members/new 200 in 95ms (next.js: 50ms, application-code: 45ms)
+ GET /admin/members 200 in 100ms (next.js: 4ms, application-code: 96ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 111ms (next.js: 14ms, application-code: 97ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 1928ms (next.js: 1428ms, application-code: 501ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 1278ms (next.js: 576ms, application-code: 702ms)
+ GET /admin/members 200 in 433ms (next.js: 118ms, application-code: 316ms)
+ GET /admin/members 200 in 967ms (next.js: 223ms, application-code: 744ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87/edit 200 in 536ms (next.js: 197ms, application-code: 339ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 376ms (next.js: 73ms, application-code: 303ms)
+ GET /admin/members 200 in 993ms (next.js: 71ms, application-code: 923ms)
+ GET /admin/members 200 in 638ms (next.js: 267ms, application-code: 371ms)
+ GET /admin/members 200 in 619ms (next.js: 178ms, application-code: 440ms)
+ GET /admin/members 200 in 243ms (next.js: 69ms, application-code: 174ms)
+ GET /admin/members 200 in 291ms (next.js: 73ms, application-code: 219ms)
+ GET /admin/members 200 in 285ms (next.js: 78ms, application-code: 207ms)
+ GET /admin/members/c9243843-9afa-47c4-b9c3-ed05c4745143/edit?from=list 200 in 549ms (next.js: 79ms, application-code: 469ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87/edit?from=list 200 in 642ms (next.js: 109ms, application-code: 533ms)
+ GET /admin/members 200 in 214ms (next.js: 7ms, application-code: 207ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 179ms (next.js: 68ms, application-code: 112ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87/edit?from=profile 200 in 101ms (next.js: 18ms, application-code: 83ms)
+ GET /admin/members/aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 105ms (next.js: 12ms, application-code: 93ms)
+ GET /admin/members 200 in 110ms (next.js: 3ms, application-code: 108ms)
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+ GET /admin/members 200 in 3.1s (next.js: 273ms, application-code: 2.8s)
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+ GET /admin/members 500 in 10.1s (next.js: 5ms, application-code: 10.1s)
+○ Compiling /api/member-types ...
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /api/member-types 200 in 17.7s (next.js: 17.4s, application-code: 284ms)
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+ GET /admin/members 500 in 14.4s (next.js: 10.3s, application-code: 4.1s)
+○ Compiling /api/members ...
+ GET /api/members 200 in 8.2s (next.js: 8.2s, application-code: 25ms)
+ GET /api/finances/categories 200 in 2.3s (next.js: 2.2s, application-code: 33ms)
+ GET /api/finances/income 200 in 2.6s (next.js: 2.6s, application-code: 15ms)
+ GET /api/finances/expenses 200 in 1938ms (next.js: 1918ms, application-code: 20ms)
+ GET /api/finances/summary 200 in 2.1s (next.js: 2.0s, application-code: 65ms)
+[browser] Uncaught Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>:1:18)
+    at MembersPage (src\components\members\members-page.tsx:58:9)
+    at AdminMembersPage (src\app\admin\members\page.tsx:4:10)
+  56 |
+  57 |         <MemberFilters totalMembers={totalMembers} visibleMembers={members.length} />
+> 58 |         <MemberTable members={members} />
+     |         ^
+  59 |
+  60 |         <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+  61 |           <MemberStatCard
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+⨯ Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '3368850673'
+}
+ GET /admin/members 500 in 1967ms (next.js: 116ms, application-code: 1852ms)
+[browser] Uncaught Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  <... label="" memberPublicId=... memberLabel=... renderTrigger={function renderTrigger}>
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>:1:18)
+    at MembersPage (src\components\members\members-page.tsx:58:9)
+    at AdminMembersPage (src\app\admin\members\page.tsx:4:10)
+  56 |
+  57 |         <MemberFilters totalMembers={totalMembers} visibleMembers={members.length} />
+> 58 |         <MemberTable members={members} />
+     |         ^
+  59 |
+  60 |         <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+  61 |           <MemberStatCard
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /admin/members 200 in 2.9s (next.js: 2.2s, application-code: 659ms)
+ GET /admin/members 200 in 9.6s (next.js: 8.9s, application-code: 667ms)
+ GET /admin/finances 200 in 196ms (next.js: 74ms, application-code: 122ms)
+○ Compiling /admin/finances/income ...
+ GET /admin/finances/income 200 in 3.4s (next.js: 3.2s, application-code: 171ms)
+ GET /admin/members 200 in 175ms (next.js: 53ms, application-code: 122ms)
+ GET /admin/members 200 in 6.5s (next.js: 6.0s, application-code: 477ms)
+ GET /admin/members 200 in 152ms (next.js: 4ms, application-code: 148ms)
+ GET /admin/members 200 in 683ms (next.js: 4ms, application-code: 679ms)
+○ Compiling /api/member-types ...
+ GET /api/member-types 200 in 4.3s (next.js: 4.2s, application-code: 101ms)
+○ Compiling /api/members ...
+ GET /api/members 200 in 4.1s (next.js: 4.1s, application-code: 22ms)
+○ Compiling /api/finances/categories ...
+ GET /api/finances/categories 200 in 4.4s (next.js: 4.4s, application-code: 44ms)
+○ Compiling /api/finances/income ...
+ GET /api/finances/income 200 in 4.1s (next.js: 4.1s, application-code: 18ms)
+ GET /api/finances/expenses 200 in 1283ms (next.js: 1267ms, application-code: 16ms)
+ GET /api/finances/summary 200 in 1577ms (next.js: 1549ms, application-code: 28ms)
+ GET /admin/members 200 in 586ms (next.js: 184ms, application-code: 402ms)
+ GET /admin/members 200 in 72ms (next.js: 3ms, application-code: 69ms)
+ GET /admin/members 200 in 140ms (next.js: 3ms, application-code: 136ms)
+ GET /admin/members 200 in 113ms (next.js: 4ms, application-code: 110ms)
+ GET /admin/members 200 in 385ms (next.js: 10ms, application-code: 374ms)
+○ Compiling /admin/finances ...
+ GET /admin/finances 200 in 7.3s (next.js: 7.1s, application-code: 167ms)
+ GET /admin/finances/income 200 in 137ms (next.js: 55ms, application-code: 83ms)
+ GET /admin/members 200 in 1107ms (next.js: 74ms, application-code: 1033ms)
+ GET /admin/members 200 in 927ms (next.js: 409ms, application-code: 519ms)
+ GET /admin/members 200 in 875ms (next.js: 54ms, application-code: 821ms)
+ GET /admin/members 200 in 1850ms (next.js: 627ms, application-code: 1222ms)
+○ Compiling /api/finances/income ...
+ POST /api/finances/income 201 in 11.5s (next.js: 11.2s, application-code: 212ms)
+ GET /admin/members 200 in 451ms (next.js: 101ms, application-code: 350ms)
+○ Compiling /admin/finances ...
+ GET /admin/finances 200 in 3.5s (next.js: 3.4s, application-code: 161ms)
+ GET /admin/finances/income 200 in 216ms (next.js: 76ms, application-code: 140ms)
+ GET /admin/finances/income 200 in 2.4s (next.js: 1671ms, application-code: 726ms)
+ GET /admin/finances/income 200 in 227ms (next.js: 66ms, application-code: 160ms)
+ GET /admin/finances/income 200 in 177ms (next.js: 9ms, application-code: 168ms)
+○ Compiling /api/member-types ...
+ GET /api/member-types 200 in 10.1s (next.js: 10.1s, application-code: 61ms)
+○ Compiling /api/members ...
+ GET /api/members 200 in 7.6s (next.js: 7.5s, application-code: 37ms)
+ GET /api/finances/categories 200 in 2.3s (next.js: 2.3s, application-code: 28ms)
+○ Compiling /api/finances/income ...
+ GET /api/finances/income 200 in 3.5s (next.js: 3.5s, application-code: 24ms)
+ GET /admin/finances/income 200 in 751ms (next.js: 200ms, application-code: 550ms)
+○ Compiling /api/finances/expenses ...
+ GET /api/finances/expenses 200 in 3.2s (next.js: 3.2s, application-code: 26ms)
+ GET /api/finances/summary 200 in 2.5s (next.js: 2.4s, application-code: 63ms)
+ GET /api/members?pageSize=1 200 in 49ms (next.js: 12ms, application-code: 37ms)
+ GET /admin/finances/income 200 in 304ms (next.js: 128ms, application-code: 176ms)
+ GET /api/member-types 200 in 47ms (next.js: 35ms, application-code: 12ms)
+ GET /api/members 200 in 17ms (next.js: 4ms, application-code: 13ms)
+ GET /api/finances/categories 200 in 35ms (next.js: 22ms, application-code: 13ms)
+ GET /api/finances/income 200 in 39ms (next.js: 25ms, application-code: 15ms)
+ GET /api/finances/expenses 200 in 39ms (next.js: 27ms, application-code: 12ms)
+ GET /api/finances/summary 200 in 24ms (next.js: 4ms, application-code: 19ms)
+ GET /api/members?pageSize=1 200 in 12ms (next.js: 2ms, application-code: 10ms)
+ POST /api/finances/income 201 in 63ms (next.js: 2ms, application-code: 61ms)
+ GET /api/finances/income?member=aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 34ms (next.js: 2ms, application-code: 32ms)
+ GET /admin/finances/income 200 in 793ms (next.js: 440ms, application-code: 353ms)
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /admin/finances/income 200 in 853ms (next.js: 6ms, application-code: 847ms)
+ GET /admin/finances/income 200 in 328ms (next.js: 14ms, application-code: 314ms)
+ GET /admin/finances/income 200 in 1410ms (next.js: 114ms, application-code: 1296ms)
+⨯ ./src/components/finance/income-table.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from F:\Projects\church-management\src\components\finance\income-table.tsx
+    1: The system cannot find the file specified. (os error 2)
+
+Import trace for requested module:
+./src/components/finance/income-table.tsx
+./src/components/finance/finance-income.tsx
+./src/components/finance/index.ts
+./src/app/admin/finances/income/page.tsx
+○ Compiling /_error ...
+⨯ ./src/components/finance/income-table.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from F:\Projects\church-management\src\components\finance\income-table.tsx
+    1: The system cannot find the file specified. (os error 2)
+
+Import trace for requested module:
+./src/components/finance/income-table.tsx
+./src/components/finance/finance-income.tsx
+./src/components/finance/index.ts
+./src/app/admin/finances/income/page.tsx
+ GET /admin/finances/income 500 in 17.3s (next.js: 16.9s, application-code: 378ms)
+ GET /admin/finances/income 500 in 28ms (next.js: 6ms, application-code: 22ms)
+ GET /admin/finances/income 500 in 37ms (next.js: 4ms, application-code: 34ms)
+ GET /admin/finances/income 500 in 33ms (next.js: 7ms, application-code: 27ms)
+[browser] Uncaught ModuleBuildError: Module build failed (from ./node_modules/next/dist/build/webpack/loaders/next-swc-loader.js):
+Error: 
+
+Caused by:
+    0: Failed to read source code from F:\Projects\church-management\src\components\finance\income-table.tsx
+    1: The system cannot find the file specified. (os error 2)
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /admin/finances/income 500 in 1197ms
+ GET /admin/finances/income 200 in 8.7s (next.js: 7.0s, application-code: 1642ms)
+ GET /admin/finances/income 200 in 1516ms (next.js: 817ms, application-code: 699ms)
+ GET /admin/finances/income 200 in 645ms (next.js: 8ms, application-code: 637ms)
+○ Compiling /api/member-types ...
+ GET /api/member-types 200 in 8.6s (next.js: 8.6s, application-code: 32ms)
+○ Compiling /api/members ...
+ GET /api/members 200 in 9.3s (next.js: 9.2s, application-code: 57ms)
+○ Compiling /api/finances/categories ...
+ GET /api/finances/categories 200 in 3.5s (next.js: 3.4s, application-code: 36ms)
+○ Compiling /api/finances/income ...
+ GET /api/finances/income 200 in 5.2s (next.js: 5.2s, application-code: 25ms)
+ GET /admin/finances/income 200 in 612ms (next.js: 130ms, application-code: 483ms)
+ GET /api/finances/expenses 200 in 2.6s (next.js: 2.6s, application-code: 34ms)
+ GET /api/finances/summary 200 in 3.3s (next.js: 3.2s, application-code: 88ms)
+ GET /api/members?pageSize=1 200 in 65ms (next.js: 29ms, application-code: 36ms)
+ POST /api/finances/income 201 in 140ms (next.js: 18ms, application-code: 123ms)
+ GET /api/finances/income?member=aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 68ms (next.js: 18ms, application-code: 50ms)
+ GET /admin/finances/income 200 in 507ms (next.js: 184ms, application-code: 323ms)
+○ Compiling /api/member-types ...
+ GET /api/member-types 200 in 8.5s (next.js: 7.8s, application-code: 726ms)
+ GET /admin/finances/income 200 in 6.3s (next.js: 5.1s, application-code: 1209ms)
+○ Compiling /api/members ...
+ GET /api/members 200 in 3.3s (next.js: 3.3s, application-code: 33ms)
+○ Compiling /api/finances/categories ...
+ GET /api/finances/categories 200 in 3.6s (next.js: 3.6s, application-code: 50ms)
+○ Compiling /api/finances/income ...
+ GET /api/finances/income 200 in 4.5s (next.js: 4.5s, application-code: 18ms)
+ GET /api/finances/expenses 200 in 1754ms (next.js: 1732ms, application-code: 23ms)
+ GET /api/finances/summary 200 in 2.9s (next.js: 2.9s, application-code: 83ms)
+ GET /api/members?pageSize=1 200 in 34ms (next.js: 20ms, application-code: 14ms)
+ POST /api/finances/income 201 in 98ms (next.js: 18ms, application-code: 80ms)
+ GET /api/finances/income?member=aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 19ms (next.js: 4ms, application-code: 15ms)
+ GET /admin/finances/income 200 in 238ms (next.js: 101ms, application-code: 137ms)
+ GET /api/member-types 200 in 66ms (next.js: 52ms, application-code: 14ms)
+ GET /api/members 200 in 31ms (next.js: 19ms, application-code: 12ms)
+ GET /api/finances/categories 200 in 32ms (next.js: 20ms, application-code: 12ms)
+ GET /api/finances/income 200 in 40ms (next.js: 28ms, application-code: 12ms)
+ GET /api/finances/expenses 200 in 41ms (next.js: 28ms, application-code: 12ms)
+ GET /api/finances/summary 200 in 44ms (next.js: 21ms, application-code: 23ms)
+ GET /api/members?pageSize=1 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ POST /api/finances/income 201 in 30ms (next.js: 3ms, application-code: 27ms)
+ GET /api/finances/income?member=aae53743-aa7d-4ecc-957f-00fdc522de87 200 in 11ms (next.js: 2ms, application-code: 9ms)
+○ Compiling /api/finances/income/[id] ...
+ DELETE /api/finances/income/a62d2a5e-de8c-4040-aa38-971f94676226 200 in 6.3s (next.js: 6.1s, application-code: 152ms)
+ GET /admin/finances/income 200 in 242ms (next.js: 79ms, application-code: 163ms)
+ GET /admin/finances/income?member=kerbs&category= 200 in 429ms (next.js: 5ms, application-code: 424ms)
+ DELETE /api/finances/income/b463bc72-e5f0-4efc-9100-98ab76f299a0 200 in 52ms (next.js: 25ms, application-code: 27ms)
+ GET /admin/finances/income?member=kerbs&category= 200 in 137ms (next.js: 7ms, application-code: 130ms)
+ DELETE /api/finances/income/3f75148a-0585-4fa4-826f-b38ad96bda28 200 in 31ms (next.js: 18ms, application-code: 14ms)
+ GET /admin/finances/income?member=kerbs&category= 200 in 126ms (next.js: 4ms, application-code: 122ms)
+ DELETE /api/finances/income/8d5c537c-77f5-4ac5-bde3-1d09d7c206d9 200 in 35ms (next.js: 18ms, application-code: 17ms)
+ GET /admin/finances/income?member=kerbs&category= 200 in 110ms (next.js: 4ms, application-code: 106ms)
+ GET /admin/finances/income?member=kerbs&category= 200 in 219ms (next.js: 5ms, application-code: 214ms)
+ GET /admin/finances/income?member=&category= 200 in 615ms (next.js: 38ms, application-code: 576ms)
+ PATCH /api/finances/income/623d9932-2846-409e-a35d-e0f7dd7747a8 200 in 191ms (next.js: 52ms, application-code: 138ms)
+ GET /admin/finances/income?member=&category= 200 in 348ms (next.js: 13ms, application-code: 335ms)
+ PATCH /api/finances/income/623d9932-2846-409e-a35d-e0f7dd7747a8 200 in 35ms (next.js: 12ms, application-code: 23ms)
+ GET /admin/finances/income?member=&category= 200 in 132ms (next.js: 7ms, application-code: 125ms)
+ GET /admin/finances/income?member=&category= 200 in 282ms (next.js: 4ms, application-code: 278ms)
+○ Compiling /admin/finances/expenses ...
+ GET /admin/finances/expenses 200 in 15.4s (next.js: 15.1s, application-code: 270ms)
+ GET /admin/finances/income 200 in 829ms (next.js: 288ms, application-code: 541ms)
+ GET /admin/finances 200 in 246ms (next.js: 81ms, application-code: 165ms)
+○ Compiling /_not-found ...
+ GET /admin/sermons 404 in 10.8s (next.js: 10.7s, application-code: 125ms)
+ GET /admin/events 404 in 45ms (next.js: 5ms, application-code: 40ms)
+ GET /admin/events 404 in 265ms (next.js: 5ms, application-code: 260ms)
+ GET /admin/finances 200 in 400ms (next.js: 68ms, application-code: 332ms)
+○ Compiling /admin ...
+ GET /admin 200 in 5.4s (next.js: 5.2s, application-code: 181ms)
+⚠ Fast Refresh had to perform a full reload when ch-management\\node_modules\\lucide-react\\dist\\esm\\Icon.mjs","ids":["default"]}, ch-management\\node_modules\\next\\dist\\client\\app-dir\\link.js","ids":[]}, ch-management\\src\\components\\ui\\deletion-confirm-modal.tsx","ids":[]}, ch-management\\src\\components\\ui\\modal.tsx","ids":[]} changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /admin/finances 200 in 705ms (next.js: 51ms, application-code: 654ms)
+ GET /admin/finances 200 in 188ms (next.js: 20ms, application-code: 168ms)

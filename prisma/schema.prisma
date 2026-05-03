@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model MemberType {
+  id        Int      @id @default(autoincrement())
+  publicId  String   @unique @default(uuid()) @map("public_id")
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members Member[]
+
+  @@map("member_types")
+}
+
+model Member {
+  id           Int       @id @default(autoincrement())
+  publicId     String    @unique @default(uuid()) @map("public_id")
+  firstName    String    @map("first_name")
+  lastName     String    @map("last_name")
+  email        String?   @unique
+  phone        String?
+  birthday     DateTime?
+  address      String?
+  notes        String?
+  status       String    @default("active")
+  synced       Boolean   @default(false)
+  memberTypeId Int?      @map("member_type_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  memberType    MemberType?    @relation(fields: [memberTypeId], references: [id], onDelete: SetNull)
+  contributions Contribution[]
+
+  @@index([memberTypeId])
+  @@index([status])
+  @@map("members")
+}
+
+model GivingCategory {
+  id           Int      @id @default(autoincrement())
+  publicId     String   @unique @default(uuid()) @map("public_id")
+  name         String   @unique
+  slug         String   @unique
+  isRestricted Boolean  @default(false) @map("is_restricted")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  contributions Contribution[]
+
+  @@map("giving_categories")
+}
+
+model Contribution {
+  id            Int      @id @default(autoincrement())
+  publicId      String   @unique @default(uuid()) @map("public_id")
+  memberId      Int?     @map("member_id")
+  categoryId    Int      @map("category_id")
+  amountCents   Int      @map("amount_cents")
+  paymentMethod String   @default("cash") @map("payment_method")
+  receivedAt    DateTime @default(now()) @map("received_at")
+  reference     String?
+  notes         String?
+  synced        Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  member      Member?          @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  category    GivingCategory   @relation(fields: [categoryId], references: [id])
+  allocations FundAllocation[]
+
+  @@index([memberId])
+  @@index([categoryId])
+  @@index([receivedAt])
+  @@map("contributions")
+}
+
+model ExpenseCategory {
+  id        Int      @id @default(autoincrement())
+  publicId  String   @unique @default(uuid()) @map("public_id")
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  expenses Expense[]
+
+  @@map("expense_categories")
+}
+
+model Expense {
+  id            Int      @id @default(autoincrement())
+  publicId      String   @unique @default(uuid()) @map("public_id")
+  categoryId    Int      @map("category_id")
+  vendor        String?
+  description   String
+  amountCents   Int      @map("amount_cents")
+  paidAt        DateTime @default(now()) @map("paid_at")
+  reference     String?
+  receiptPath   String?  @map("receipt_path")
+  notes         String?
+  synced        Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  category ExpenseCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([paidAt])
+  @@map("expenses")
+}
+
+model Fund {
+  id           Int       @id @default(autoincrement())
+  publicId     String    @unique @default(uuid()) @map("public_id")
+  name         String    @unique
+  slug         String    @unique
+  description  String?
+  targetCents  Int?      @map("target_cents")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  archivedAt   DateTime? @map("archived_at")
+
+  allocations FundAllocation[]
+
+  @@map("funds")
+}
+
+model FundAllocation {
+  id             Int      @id @default(autoincrement())
+  publicId       String   @unique @default(uuid()) @map("public_id")
+  fundId         Int      @map("fund_id")
+  contributionId Int?     @map("contribution_id")
+  amountCents    Int      @map("amount_cents")
+  allocatedAt    DateTime @default(now()) @map("allocated_at")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  fund         Fund          @relation(fields: [fundId], references: [id])
+  contribution Contribution? @relation(fields: [contributionId], references: [id], onDelete: SetNull)
+
+  @@index([fundId])
+  @@index([contributionId])
+  @@map("fund_allocations")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  publicId    String   @unique @default(uuid()) @map("public_id")
+  title       String
+  description String?
+  location    String?
+  startsAt    DateTime @map("starts_at")
+  endsAt      DateTime? @map("ends_at")
+  synced      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([startsAt])
+  @@map("events")
+}
+
+model ActivityLog {
+  id             Int      @id @default(autoincrement())
+  publicId       String   @unique @default(uuid()) @map("public_id")
+  action         String
+  entityType     String   @map("entity_type")
+  entityPublicId String?  @map("entity_public_id")
+  description    String
+  metadataJson   String?  @map("metadata_json")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([entityType])
+  @@index([entityPublicId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model ReportSnapshot {
+  id          Int      @id @default(autoincrement())
+  publicId    String   @unique @default(uuid()) @map("public_id")
+  reportType  String   @map("report_type")
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
+  dataJson    String   @map("data_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([reportType])
+  @@index([periodStart, periodEnd])
+  @@map("report_snapshots")
+}

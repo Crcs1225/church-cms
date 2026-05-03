@@ -1,0 +1,89 @@
+import Link from "next/link";
+import {
+  ChevronRight,
+  Download,
+  HandHeart,
+  Plus,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { AdminShell } from "@/components/admin";
+import { Button } from "@/components/ui";
+import { getMembersPageData } from "./members-data";
+import { MemberFilters } from "./member-filters";
+import { MemberStatCard } from "./member-stat-card";
+import { MemberTable } from "./member-table";
+
+export async function MembersPage() {
+  const { members, totalMembers, activeMembers, newMembersLast30Days } =
+    await getMembersPageData();
+
+  return (
+    <AdminShell activeSection="Members">
+      <main className="mx-auto max-w-[1200px] px-6 py-8">
+        <header className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-2 flex items-center gap-2 text-xs text-text-secondary"
+            >
+              <span>Directory</span>
+              <ChevronRight className="h-3 w-3" aria-hidden />
+              <span className="font-semibold text-primary">Congregation</span>
+            </nav>
+            <h1 className="font-display text-5xl leading-tight text-text-primary">
+              Congregation
+            </h1>
+            <p className="mt-1 text-text-secondary">
+              Manage {activeMembers.toLocaleString()} active community members
+              and their engagement history.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="secondary">
+              <Download className="h-4 w-4" aria-hidden />
+              Export List
+            </Button>
+            <Link
+              href="/admin/members/new"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-white transition-all duration-150 hover:bg-primary-hover hover:shadow-[0_4px_12px_rgba(194,65,12,0.25)] active:scale-[0.98]"
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Add Member
+            </Link>
+          </div>
+        </header>
+
+        <MemberFilters totalMembers={totalMembers} visibleMembers={members.length} />
+        <MemberTable members={members} />
+
+        <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <MemberStatCard
+            label="Total Attendance"
+            value="1,142"
+            trend="+12%"
+            icon={TrendingUp}
+          />
+          <MemberStatCard
+            label="New Members"
+            value={newMembersLast30Days.toLocaleString()}
+            trend="+5%"
+            description="Past 30 days"
+            icon={HandHeart}
+            accentClassName="bg-accent"
+            iconClassName="bg-accent/10 text-accent"
+          />
+          <MemberStatCard
+            label="Retention Rate"
+            value="94.2%"
+            trend="-2%"
+            icon={Users}
+            accentClassName="bg-blue-700"
+            iconClassName="bg-blue-50 text-blue-700"
+            trendClassName="text-warning"
+          />
+        </section>
+      </main>
+    </AdminShell>
+  );
+}
