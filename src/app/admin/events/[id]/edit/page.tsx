@@ -115,7 +115,7 @@ function EditEventContent({
   }
 
   return (
-    <div className="space-y-lg max-w-2xl">
+    <div className="max-w-2xl space-y-lg">
       {/* Back button */}
       <Link href={`/admin/events/${event.publicId}`}>
         <Button variant="ghost" size="sm" className="flex items-center gap-2">
@@ -126,15 +126,15 @@ function EditEventContent({
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold font-serif text-text-primary">
+        <h1 className="text-3xl font-bold font-serif text-text-primary">
           Edit Event
         </h1>
-        <p className="text-text-secondary mt-1">Update event details</p>
+        <p className="text-text-secondary mt-2">Update event details</p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-lg">
-        <div className="bg-surface border border-border rounded-lg p-lg space-y-lg">
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-lg">
+        <div className="bg-surface border border-border rounded-xl p-lg space-y-lg">
           <div>
             <Label htmlFor="title">Event Title *</Label>
             <Input
@@ -152,7 +152,9 @@ function EditEventContent({
               id="description"
               name="description"
               defaultValue={event.description || ""}
-              className="w-full h-24 px-3 py-2 rounded-md border border-border bg-white text-base focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-primary mt-2"
+              placeholder="What is this event about? Include any relevant details or context."
+              rows={5}
+              className="w-full px-3 py-2 rounded-md border border-border bg-white text-base focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-primary mt-2 font-body"
             />
           </div>
 
@@ -193,7 +195,7 @@ function EditEventContent({
         </div>
 
         {error && (
-          <div className="p-3 rounded-md border border-red-200 bg-red-50 text-sm text-red-700">
+          <div className="p-md rounded-md border border-red-200 bg-red-50 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -202,7 +204,7 @@ function EditEventContent({
           <Link href={`/admin/events/${event.publicId}`}>
             <Button variant="outline">Cancel</Button>
           </Link>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} size="lg">
             {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
         </div>
@@ -218,7 +220,7 @@ export default function EditEventPage({
 }) {
   return (
     <AdminShell activeSection="Events">
-      <div className="space-y-6 p-6">
+      <div className="space-y-lg p-lg">
         <EditEventContent params={params} />
       </div>
     </AdminShell>
