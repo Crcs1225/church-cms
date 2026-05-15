@@ -56,7 +56,7 @@ export function EventTable({ events, isLoading }: Props) {
             className="block p-4 bg-surface border border-border rounded-lg hover:shadow-md hover:border-primary transition-all"
           >
             <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 text-center">
+              <div className="shrink-0 text-center">
                 <div className="text-xs font-semibold text-text-secondary uppercase">
                   {month}
                 </div>

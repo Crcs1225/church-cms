@@ -1,49 +1,12 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
+import { getEventsListData } from "@/components/events";
 import { AdminShell } from "@/components/admin";
 import { EventTable } from "@/components/events";
-import { Button } from "@/components/ui";
+import { Button, Card } from "@/components/ui";
 import { Plus, Calendar as CalendarIcon } from "lucide-react";
 
-type Event = {
-  publicId: string;
-  title: string;
-  description: string | null;
-  location: string | null;
-  startsAt: string;
-  endsAt: string | null;
-};
-
 export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadEvents();
-  }, []);
-
-  async function loadEvents() {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams({
-        pageSize: "50",
-      });
-
-      const response = await fetch(`/api/events?${params}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setEvents(data.events || []);
-      }
-    } catch (error) {
-      console.error("Failed to load events:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   return (
     <AdminShell activeSection="Events">
       <div className="space-y-lg p-lg">
@@ -74,11 +37,28 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* Events list */}
-        <div>
-          <EventTable events={events} isLoading={isLoading} />
-        </div>
+        <Suspense fallback={<EventsSectionFallback />}>
+          <EventsListSection />
+        </Suspense>
       </div>
     </AdminShell>
   );
+}
+
+function EventsSectionFallback() {
+  return (
+    <Card className="rounded-xl p-6">
+      <div className="space-y-3">
+        {[0, 1, 2, 3].map((item) => (
+          <div key={item} className="h-16 animate-pulse rounded-lg bg-surface-raised" />
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+async function EventsListSection() {
+  const { events } = await getEventsListData();
+
+  return <EventTable events={events} />;
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 function startOfMonth(date: Date) {
@@ -14,6 +15,12 @@ function monthKey(date: Date) {
 }
 
 export async function GET(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "finances:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { searchParams } = new URL(request.url);
   const now = searchParams.get("date")
     ? new Date(searchParams.get("date") ?? "")
@@ -150,9 +157,9 @@ export async function GET(request: NextRequest) {
       netCents: totalIncomeCents - totalExpenseCents,
     },
     monthly: months,
-    funds: funds.map((fund) => {
+    funds: funds.map((fund: (typeof funds)[number]) => {
       const allocatedCents = fund.allocations.reduce(
-        (sum, allocation) => sum + allocation.amountCents,
+        (sum: number, allocation: { amountCents: number }) => sum + allocation.amountCents,
         0,
       );
 
@@ -166,7 +173,7 @@ export async function GET(request: NextRequest) {
       };
     }),
     recentTransactions: [
-      ...recentIncome.map((contribution) => ({
+      ...recentIncome.map((contribution: (typeof recentIncome)[number]) => ({
         publicId: contribution.publicId,
         type: "income",
         description: contribution.category.name,
@@ -179,7 +186,7 @@ export async function GET(request: NextRequest) {
           : null,
         category: contribution.category,
       })),
-      ...recentExpenses.map((expense) => ({
+      ...recentExpenses.map((expense: (typeof recentExpenses)[number]) => ({
         publicId: expense.publicId,
         type: "expense",
         description: expense.description,
@@ -189,7 +196,7 @@ export async function GET(request: NextRequest) {
         category: expense.category,
       })),
     ].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)),
-    activityLogs: activityLogs.map((log) => ({
+    activityLogs: activityLogs.map((log: (typeof activityLogs)[number]) => ({
       publicId: log.publicId,
       action: log.action,
       entityType: log.entityType,

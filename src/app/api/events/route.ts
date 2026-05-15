@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { Prisma } from "@/generated/prisma/client";
 import { apiError, getPagination, parseDate } from "@/lib/api-utils";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 function formatEvent(event: {
@@ -25,13 +27,19 @@ function formatEvent(event: {
 }
 
 export async function GET(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "events:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { searchParams } = new URL(request.url);
   const { page, pageSize, skip } = getPagination(searchParams);
   const query = searchParams.get("query")?.trim();
   const month = searchParams.get("month");
   const year = searchParams.get("year");
 
-  const where: any = {};
+  const where: Prisma.EventWhereInput = {};
 
   if (query) {
     where.OR = [
@@ -75,6 +83,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "events:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {

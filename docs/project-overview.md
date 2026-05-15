@@ -1,84 +1,30 @@
-# Church Management System (CMS)
+# NTCCGMI Ilog Malino System
 
-## Project Overview
+## Overview
 
-The Church Management System (CMS) is a web-based application designed to help churches manage their internal operations efficiently. The system focuses on financial tracking, member management, and event coordination, with an offline-first architecture and optional cloud synchronization through a hosted SQLite-compatible service for multi-device access.
+This repository contains a local-first administration app for The New Testament Christian Church Global Ministry Incorporated - Ilog Malino, focused on managing:
 
-This document is intended as project context for contributors and AI assistants working in this repository.
+- members
+- giving and expenses
+- events
+- admin reporting
 
-## Goals
+The project is optimized for a single-device local workflow first, with future cloud sync planned later.
 
-### Primary Goals
+## Current Product Shape
 
-- Provide a simple and reliable system for managing:
-  - Tithes and offerings
-  - Member records
-  - Church events
-- Ensure the system works offline for local use
-- Enable data synchronization to the cloud for backup and multi-device access, preferably through SQLite Cloud or a similar SQLite-native sync service
+The current app includes:
 
-### Long-Term Goals
-
-- Allow members to:
-  - View their giving history
-  - Check events and announcements
-- Support multi-device usage, such as multiple church staff laptops
-- Provide real-time or near real-time data sync
-- Scale into a full church management platform
-
-## Description
-
-This project is built as an offline-first application:
-
-- Data is stored locally on the device using a lightweight database
-- The system continues to function without internet access
-- When online, data can sync to a cloud backend for:
-  - Backup
-  - Cross-device access
-
-The system will initially focus on an admin dashboard, with future expansion to a member-facing portal.
-
-## Tech Stack
-
-### Frontend And Backend
-
-- Next.js, used as the fullstack React framework
-- TypeScript, used for type safety
-
-### Database
-
-- SQLite, used as the embedded local database for offline storage
-- Current implementation uses local SQLite with Prisma and `better-sqlite3`
-
-### ORM
-
-- Prisma is used as the application ORM for managing schema and type-safe queries
-- Prisma connects to SQLite through `@prisma/adapter-better-sqlite3`
-
-### Cloud Backend
-
-- SQLite Cloud is the preferred cloud-sync candidate because it keeps the architecture SQLite-centered:
-  - Hosted SQLite-compatible database services
-  - SQLite-native sync options
-  - JavaScript driver support
-- Supabase remains a possible fallback option if the project later needs PostgreSQL-first features:
-  - PostgreSQL database
-  - Authentication
-  - API services
+- admin dashboard with live member, event, finance, and activity data
+- member list, create, edit, and profile flows
+- income management with member-linked and anonymous contributions
+- expense management
+- finance reporting with six-month trend data and fund allocation status
+- event list, calendar, create, detail, edit, and delete flows
 
 ## Architecture
 
-### Current Offline-First Architecture
-
-```text
-[ Next.js App ]
-       |
-[ Prisma ORM ]
-       |
-[ SQLite Database (Local) ]
-```
-
-### Local SQLite Implementation
+Current runtime shape:
 
 ```text
 [ Next.js App ]
@@ -87,109 +33,54 @@ The system will initially focus on an admin dashboard, with future expansion to 
        |
 [ better-sqlite3 Adapter ]
        |
-[ SQLite Database (Local) ]
+[ Local SQLite Database ]
 ```
 
-### Future Cloud Sync Architecture
+## Data Principles
 
-```text
-[ Local SQLite ]
-       |
-      Sync
-       |
-[ SQLite Cloud ]
-       |
-[ Other Devices / Clients ]
-```
+- Prisma schema is the source of truth.
+- Public UI and route identity should use `publicId`.
+- Money is stored as integer cents.
+- Local SQLite is the primary working datastore.
+- Sync can be layered later without changing the local-first model.
 
-## Key Features
+## Key Models
 
-### Phase 1: MVP
+- `MemberType`
+- `Member`
+- `GivingCategory`
+- `Contribution`
+- `ExpenseCategory`
+- `Expense`
+- `Fund`
+- `FundAllocation`
+- `Event`
+- `ActivityLog`
+- `ReportSnapshot`
 
-- Admin authentication
-- Member management
-- Tithes and offerings recording
-- Basic financial reports
+## API Surface
 
-### Phase 2
+Current route groups:
 
-- Data synchronization with SQLite Cloud or another SQLite-native cloud sync provider
-- Backup and restore system
-- Multi-device support
+- `/api/member-types`
+- `/api/members`
+- `/api/finances/categories`
+- `/api/finances/income`
+- `/api/finances/expenses`
+- `/api/finances/summary`
+- `/api/events`
 
-### Phase 3
+## Current Constraints
 
-- Member portal for viewing personal contributions
-- Event management and announcements
-- Optional notifications
+- No auth or roles yet
+- No backup/restore workflow yet
+- Finance CSV export is implemented
+- Finance print-friendly PDF workflow is implemented through browser print pages
+- No real cloud sync implementation yet
+- Some sync-related UI is intentionally descriptive rather than functional
 
-## Data Sync Strategy
+## Development Notes
 
-Each syncable record should include:
-
-- `id`, preferably a UUID
-- `createdAt`
-- `updatedAt`
-- `synced` flag or equivalent sync metadata
-
-Local data should be marked as unsynced until uploaded. Sync should occur when internet is available.
-
-The initial manual conflict resolution strategy is last updated wins. If SQLite Cloud sync supports CRDT-based merging for the selected runtime, prefer the provider's built-in conflict handling instead of custom conflict logic.
-
-## Storage Strategy
-
-- Local data is stored in SQLite per device
-- The hosted cloud database acts as:
-  - Backup
-  - Source of truth for shared data
-- Each device maintains its own local database and syncs with the cloud
-- Avoid directly sharing SQLite database files across devices
-
-## Deployment Plan
-
-### Local Deployment
-
-- Runs as a local web app or desktop-wrapped app
-- Database is stored on the machine
-
-### Future Deployment
-
-- Frontend: Vercel or similar platform, if the app becomes web-hosted
-- Backend and database: SQLite Cloud, if its sync model fits the app
-- Alternative backend and database: Supabase with PostgreSQL
-
-## Constraints And Considerations
-
-- Must work offline reliably
-- Avoid direct sharing of database files across devices
-- Handle sync conflicts carefully
-- Keep the system simple and scalable
-- Treat financial data as sensitive and design access controls accordingly
-
-## Dependencies
-
-### Current Core Dependencies
-
-- `next`
-- `react`
-- `react-dom`
-- `better-sqlite3`
-- `@prisma/client`
-- `@prisma/adapter-better-sqlite3`
-
-### Current Development Dependencies
-
-- `typescript`
-- `eslint`
-- `@types/better-sqlite3`
-- `prisma`
-- `@prisma/client`
-
-### Planned Cloud Dependencies
-
-- SQLite Cloud JavaScript driver or sync package, pending implementation choice
-- `@supabase/supabase-js`
-
-## Summary
-
-This project is designed as a scalable, offline-first church management system that starts simple and can evolve into a connected platform. The architecture prioritizes reliability in low-connectivity environments while leaving room for cloud backup, multi-device workflows, and member-facing features.
+- Use webpack dev mode on this Windows setup if Turbopack fails with `better-sqlite3` junction errors.
+- Prefer server reads and browser-side writes through API routes.
+- Reuse existing admin, finance, members, and UI patterns before adding new abstractions.

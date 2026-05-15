@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fira_Code, Playfair_Display, Source_Sans_3 } from "next/font/google";
+import { APP_TITLE, CHURCH_NAME_FULL, CHURCH_NAME_SHORT } from "@/lib/branding";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -21,8 +22,8 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "Church Management",
-  description: "Offline-first church management system",
+  title: APP_TITLE,
+  description: `${CHURCH_NAME_FULL} (${CHURCH_NAME_SHORT}) administration system`,
 };
 
 export default function RootLayout({

@@ -32,12 +32,30 @@ export type MemberTableRow = {
   active: boolean;
 };
 
+export type MembersTablePagination = {
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  totalRows: number;
+};
+
 export type MembersPageData = {
   members: MemberTableRow[];
   totalMembers: number;
   activeMembers: number;
   newMembersLast30Days: number;
 };
+
+export type MembersTableData = {
+  members: MemberTableRow[];
+  totalMembers: number;
+  pagination: MembersTablePagination;
+};
+
+export type MembersSummaryData = Pick<
+  MembersPageData,
+  "activeMembers" | "newMembersLast30Days"
+>;
 
 export type MemberGivingRow = {
   publicId: string;
@@ -119,10 +137,13 @@ export async function getMembersPageData(): Promise<MembersPageData> {
     ]);
 
   return {
-    members: members.map((member) => {
+    members: members.map((member: (typeof members)[number]) => {
       const latestContribution = member.contributions[0] ?? null;
       const totalGivingCents = member.contributions.reduce(
-        (sum, contribution) => sum + contribution.amountCents,
+        (
+          sum: number,
+          contribution: { amountCents: number },
+        ) => sum + contribution.amountCents,
         0,
       );
 
@@ -144,6 +165,106 @@ export async function getMembersPageData(): Promise<MembersPageData> {
       };
     }),
     totalMembers,
+    activeMembers,
+    newMembersLast30Days,
+  };
+}
+
+export async function getMembersTableData({
+  page = 1,
+  pageSize = 10,
+}: {
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<MembersTableData> {
+  const currentPage = Math.max(1, Math.floor(page));
+  const currentPageSize = Math.min(100, Math.max(1, Math.floor(pageSize)));
+  const totalMembers = await prisma.member.count({
+    where: { deletedAt: null },
+  });
+  const pageCount = Math.max(1, Math.ceil(totalMembers / currentPageSize));
+  const safePage = Math.min(currentPage, pageCount);
+  const members = await prisma.member.findMany({
+    where: { deletedAt: null },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    skip: (safePage - 1) * currentPageSize,
+    take: currentPageSize,
+    include: {
+      memberType: {
+        select: {
+          name: true,
+        },
+      },
+      contributions: {
+        orderBy: { receivedAt: "desc" },
+        select: {
+          amountCents: true,
+          receivedAt: true,
+        },
+      },
+    },
+  });
+
+  return {
+    members: members.map((member: (typeof members)[number]) => {
+      const latestContribution = member.contributions[0] ?? null;
+      const totalGivingCents = member.contributions.reduce(
+        (
+          sum: number,
+          contribution: { amountCents: number },
+        ) => sum + contribution.amountCents,
+        0,
+      );
+
+      return {
+        publicId: member.publicId,
+        name: [member.firstName, member.lastName].filter(Boolean).join(" "),
+        group: member.memberType?.name ?? "General",
+        status: member.status,
+        email: member.email ?? "No email",
+        phone: member.phone ?? "No phone",
+        contribution: latestContribution
+          ? formatCurrency(latestContribution.amountCents)
+          : null,
+        contributionDate: latestContribution
+          ? formatDate(latestContribution.receivedAt)
+          : null,
+        totalGiving: formatCurrency(totalGivingCents),
+        active: member.status === "active",
+      };
+    }),
+    totalMembers,
+    pagination: {
+      page: safePage,
+      pageSize: currentPageSize,
+      pageCount,
+      totalRows: totalMembers,
+    },
+  };
+}
+
+export async function getMembersSummaryData(): Promise<MembersSummaryData> {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const [activeMembers, newMembersLast30Days] = await prisma.$transaction([
+    prisma.member.count({
+      where: {
+        deletedAt: null,
+        status: "active",
+      },
+    }),
+    prisma.member.count({
+      where: {
+        deletedAt: null,
+        createdAt: {
+          gte: thirtyDaysAgo,
+        },
+      },
+    }),
+  ]);
+
+  return {
     activeMembers,
     newMembersLast30Days,
   };
@@ -208,11 +329,17 @@ export async function getMemberProfileData(
   }
 
   const totalContributionCents = member.contributions.reduce(
-    (sum, contribution) => sum + contribution.amountCents,
+    (
+      sum: number,
+      contribution: { amountCents: number; receivedAt: Date },
+    ) => sum + contribution.amountCents,
     0,
   );
   const thisMonthContributionCents = member.contributions.reduce(
-    (sum, contribution) =>
+    (
+      sum: number,
+      contribution: { amountCents: number; receivedAt: Date },
+    ) =>
       contribution.receivedAt >= monthStart
         ? sum + contribution.amountCents
         : sum,
@@ -236,7 +363,7 @@ export async function getMemberProfileData(
     lastDonationDate: latestContribution
       ? formatDate(latestContribution.receivedAt)
       : "No donations yet",
-    givingRows: member.contributions.map((contribution) => ({
+    givingRows: member.contributions.map((contribution: (typeof member.contributions)[number]) => ({
       publicId: contribution.publicId,
       date: formatDate(contribution.receivedAt),
       type: contribution.category.name,

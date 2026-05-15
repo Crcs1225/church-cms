@@ -27,7 +27,7 @@ export async function EditMemberPage({
 
   return (
     <AdminShell activeSection="Members" showQuickCreate={false}>
-      <main className="mx-auto max-w-[1200px] px-6 py-8">
+      <main className="mx-auto max-w-300 px-6 py-8">
         <Link
           href={backHref}
           className="mb-6 inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-raised hover:text-text-primary"

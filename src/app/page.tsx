@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { Card, CardDescription, CardTitle } from "@/components/ui";
+import { CHURCH_NAME_FULL, CHURCH_NAME_SHORT } from "@/lib/branding";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 text-text-primary">
       <Card className="max-w-xl p-8 text-center">
         <p className="text-xs font-semibold tracking-widest text-primary uppercase">
-          Church Management System
+          {CHURCH_NAME_SHORT}
         </p>
-        <CardTitle className="mt-3 text-5xl">Grace Community</CardTitle>
+        <CardTitle className="mt-3 text-5xl">{CHURCH_NAME_SHORT}</CardTitle>
         <CardDescription className="mx-auto mt-3 max-w-md text-base">
-          Offline-first church administration for members, giving, events, and
-          reports.
+          {CHURCH_NAME_FULL} local administration for members, giving, events,
+          and reports.
         </CardDescription>
         <Link
           href="/admin"

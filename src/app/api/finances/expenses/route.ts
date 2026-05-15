@@ -5,6 +5,8 @@ import {
   parseAmountToCents,
   parseDate,
 } from "@/lib/api-utils";
+import { getFinanceExpensesViewData } from "@/components/finance/finance-data";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 function formatExpense(expense: {
@@ -32,54 +34,33 @@ function formatExpense(expense: {
 }
 
 export async function GET(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "finances:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { searchParams } = new URL(request.url);
-  const { page, pageSize, skip } = getPagination(searchParams);
-  const category = searchParams.get("category")?.trim();
-  const query = searchParams.get("query")?.trim();
-
-  const where = {
-    ...(category ? { category: { slug: category } } : {}),
-    ...(query
-      ? {
-          OR: [
-            { vendor: { contains: query } },
-            { description: { contains: query } },
-            { reference: { contains: query } },
-          ],
-        }
-      : {}),
+  const { page, pageSize } = getPagination(searchParams);
+  const filters = {
+    categorySlug: searchParams.get("category") ?? undefined,
+    dateFrom: searchParams.get("dateFrom") ?? undefined,
+    dateTo: searchParams.get("dateTo") ?? undefined,
+    page,
+    pageSize,
   };
+  const viewData = await getFinanceExpensesViewData(filters);
 
-  const [expenses, total] = await prisma.$transaction([
-    prisma.expense.findMany({
-      where,
-      orderBy: [{ paidAt: "desc" }, { id: "desc" }],
-      skip,
-      take: pageSize,
-      include: {
-        category: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-      },
-    }),
-    prisma.expense.count({ where }),
-  ]);
-
-  return NextResponse.json({
-    expenses: expenses.map(formatExpense),
-    pagination: {
-      page,
-      pageSize,
-      total,
-      pageCount: Math.ceil(total / pageSize),
-    },
-  });
+  return NextResponse.json(viewData);
 }
 
 export async function POST(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "finances:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {

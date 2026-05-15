@@ -3,45 +3,7 @@ import type { LucideProps } from "lucide-react";
 import { HandHeart, Home, Utensils, Zap } from "lucide-react";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/cn";
-
-const transactions = [
-  {
-    date: "Oct 24, 2026",
-    description: "Weekly Tithes & Offerings",
-    category: "Unrestricted",
-    amount: "+$4,250.00",
-    amountClassName: "text-success",
-    icon: HandHeart,
-    iconClassName: "bg-primary/10 text-primary",
-  },
-  {
-    date: "Oct 22, 2026",
-    description: "Utility Bill - City Power",
-    category: "Operations",
-    amount: "-$842.15",
-    amountClassName: "text-error",
-    icon: Zap,
-    iconClassName: "bg-surface-raised text-text-secondary",
-  },
-  {
-    date: "Oct 20, 2026",
-    description: "Community Kitchen Supplies",
-    category: "Outreach",
-    amount: "-$1,200.00",
-    amountClassName: "text-error",
-    icon: Utensils,
-    iconClassName: "bg-blue-50 text-blue-700",
-  },
-  {
-    date: "Oct 18, 2026",
-    description: "Roof Restoration Fundraiser",
-    category: "Restricted",
-    amount: "+$2,800.00",
-    amountClassName: "text-success",
-    icon: Home,
-    iconClassName: "bg-primary/10 text-primary",
-  },
-];
+import type { FinanceOverviewTransaction } from "./finance-data";
 
 type TransactionIconProps = {
   icon: ComponentType<LucideProps>;
@@ -61,7 +23,27 @@ function TransactionIcon({ icon: Icon, className }: TransactionIconProps) {
   );
 }
 
-export function TransactionTable() {
+function getTransactionIcon(iconKey: FinanceOverviewTransaction["iconKey"]) {
+  if (iconKey === "income") {
+    return { icon: HandHeart, className: "bg-primary/10 text-primary" };
+  }
+
+  if (iconKey === "utilities") {
+    return { icon: Zap, className: "bg-surface-raised text-text-secondary" };
+  }
+
+  if (iconKey === "outreach") {
+    return { icon: Utensils, className: "bg-blue-50 text-blue-700" };
+  }
+
+  return { icon: Home, className: "bg-primary/10 text-primary" };
+}
+
+type TransactionTableProps = {
+  transactions: FinanceOverviewTransaction[];
+};
+
+export function TransactionTable({ transactions }: TransactionTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left">
@@ -74,35 +56,48 @@ export function TransactionTable() {
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {transactions.map((transaction) => (
-            <tr
-              key={`${transaction.date}-${transaction.description}`}
-              className="transition-colors hover:bg-background"
-            >
-              <td className="px-6 py-4 text-sm">{transaction.date}</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <TransactionIcon
-                    icon={transaction.icon}
-                    className={transaction.iconClassName}
-                  />
-                  <span className="text-sm font-semibold">
-                    {transaction.description}
-                  </span>
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <Badge>{transaction.category}</Badge>
-              </td>
-              <td
-                className={cn(
-                  "px-6 py-4 text-right text-sm font-semibold",
-                  transaction.amountClassName,
-                )}
-              >
-                {transaction.amount}
+          {transactions.length === 0 ? (
+            <tr>
+              <td className="px-6 py-8 text-sm text-text-secondary" colSpan={4}>
+                No transactions have been recorded yet.
               </td>
             </tr>
+          ) : null}
+          {transactions.map((transaction) => (
+            (() => {
+              const icon = getTransactionIcon(transaction.iconKey);
+
+              return (
+                <tr
+                  key={transaction.publicId}
+                  className="transition-colors hover:bg-background"
+                >
+                  <td className="px-6 py-4 text-sm">{transaction.date}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <TransactionIcon
+                        icon={icon.icon}
+                        className={icon.className}
+                      />
+                      <span className="text-sm font-semibold">
+                        {transaction.description}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge>{transaction.category}</Badge>
+                  </td>
+                  <td
+                    className={cn(
+                      "px-6 py-4 text-right text-sm font-semibold",
+                      transaction.amountClassName,
+                    )}
+                  >
+                    {transaction.amount}
+                  </td>
+                </tr>
+              );
+            })()
           ))}
         </tbody>
       </table>

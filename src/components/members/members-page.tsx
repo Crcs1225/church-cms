@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   ChevronRight,
   Download,
@@ -8,15 +9,18 @@ import {
   Users,
 } from "lucide-react";
 import { AdminShell } from "@/components/admin";
-import { Button } from "@/components/ui";
-import { getMembersPageData } from "./members-data";
+import { Button, Card } from "@/components/ui";
+import { getMembersSummaryData, getMembersTableData } from "./members-data";
 import { MemberFilters } from "./member-filters";
 import { MemberStatCard } from "./member-stat-card";
 import { MemberTable } from "./member-table";
 
-export async function MembersPage() {
-  const { members, totalMembers, activeMembers, newMembersLast30Days } =
-    await getMembersPageData();
+export async function MembersPage({
+  page = 1,
+}: {
+  page?: number;
+}) {
+  const { activeMembers } = await getMembersSummaryData();
 
   return (
     <AdminShell activeSection="Members">
@@ -54,36 +58,79 @@ export async function MembersPage() {
           </div>
         </header>
 
-        <MemberFilters totalMembers={totalMembers} visibleMembers={members.length} />
-        <MemberTable members={members} />
+        <Suspense fallback={<MembersSectionFallback lines={5} />}>
+          <MembersDirectorySection page={page} />
+        </Suspense>
 
-        <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-          <MemberStatCard
-            label="Total Attendance"
-            value="1,142"
-            trend="+12%"
-            icon={TrendingUp}
-          />
-          <MemberStatCard
-            label="New Members"
-            value={newMembersLast30Days.toLocaleString()}
-            trend="+5%"
-            description="Past 30 days"
-            icon={HandHeart}
-            accentClassName="bg-accent"
-            iconClassName="bg-accent/10 text-accent"
-          />
-          <MemberStatCard
-            label="Retention Rate"
-            value="94.2%"
-            trend="-2%"
-            icon={Users}
-            accentClassName="bg-blue-700"
-            iconClassName="bg-blue-50 text-blue-700"
-            trendClassName="text-warning"
-          />
-        </section>
+        <Suspense fallback={<MembersSectionFallback lines={3} className="mt-12" />}>
+          <MembersSummarySection />
+        </Suspense>
       </main>
     </AdminShell>
+  );
+}
+
+function MembersSectionFallback({
+  lines,
+  className = "",
+}: {
+  lines: number;
+  className?: string;
+}) {
+  return (
+    <Card className={`rounded-xl p-6 ${className}`.trim()}>
+      <div className="space-y-4">
+        {Array.from({ length: lines }, (_, index) => (
+          <div key={index} className="h-12 animate-pulse rounded-lg bg-surface-raised" />
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+async function MembersDirectorySection({ page }: { page: number }) {
+  const { members, totalMembers, pagination } = await getMembersTableData({
+    page,
+    pageSize: 10,
+  });
+
+  return (
+    <>
+      <MemberFilters totalMembers={totalMembers} visibleMembers={members.length} />
+      <MemberTable members={members} pagination={pagination} />
+    </>
+  );
+}
+
+async function MembersSummarySection() {
+  const { newMembersLast30Days } = await getMembersSummaryData();
+
+  return (
+    <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+      <MemberStatCard
+        label="Total Attendance"
+        value="1,142"
+        trend="+12%"
+        icon={TrendingUp}
+      />
+      <MemberStatCard
+        label="New Members"
+        value={newMembersLast30Days.toLocaleString()}
+        trend="+5%"
+        description="Past 30 days"
+        icon={HandHeart}
+        accentClassName="bg-accent"
+        iconClassName="bg-accent/10 text-accent"
+      />
+      <MemberStatCard
+        label="Retention Rate"
+        value="94.2%"
+        trend="-2%"
+        icon={Users}
+        accentClassName="bg-blue-700"
+        iconClassName="bg-blue-50 text-blue-700"
+        trendClassName="text-warning"
+      />
+    </section>
   );
 }

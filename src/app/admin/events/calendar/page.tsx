@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AdminShell } from "@/components/admin";
 import { EventCalendar } from "@/components/events";
 import { Button } from "@/components/ui";
+import { CHURCH_NAME_SHORT } from "@/lib/branding";
 import { ArrowLeft, Plus } from "lucide-react";
 
 type Event = {
@@ -22,33 +23,31 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   useEffect(() => {
-    loadEvents();
-  }, [currentMonth]);
+    void (async () => {
+      setIsLoading(true);
+      try {
+        const month = currentMonth.getMonth() + 1;
+        const year = currentMonth.getFullYear();
 
-  async function loadEvents() {
-    setIsLoading(true);
-    try {
-      const month = currentMonth.getMonth() + 1;
-      const year = currentMonth.getFullYear();
+        const params = new URLSearchParams({
+          month: String(month),
+          year: String(year),
+          pageSize: "200",
+        });
 
-      const params = new URLSearchParams({
-        month: String(month),
-        year: String(year),
-        pageSize: "200",
-      });
+        const response = await fetch(`/api/events?${params}`);
+        const data = await response.json();
 
-      const response = await fetch(`/api/events?${params}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setEvents(data.events || []);
+        if (response.ok) {
+          setEvents(data.events || []);
+        }
+      } catch (error) {
+        console.error("Failed to load events:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to load events:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+    })();
+  }, [currentMonth]);
 
   return (
     <AdminShell activeSection="Events">
@@ -68,7 +67,7 @@ export default function CalendarPage() {
               Event Calendar
             </h1>
             <p className="text-text-secondary mt-2">
-              Full month view of Grace Community events
+              Full month view of {CHURCH_NAME_SHORT} events
             </p>
           </div>
 

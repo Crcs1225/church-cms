@@ -110,4 +110,91 @@ if (linkedContribution.member?.fullName !== testMember.fullName) {
 
 console.log("/api/finances/income linked member create/search ok");
 
+const createExpenseResponse = await fetch(`${baseUrl}/api/finances/expenses`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    vendor: "API Smoke Vendor",
+    category: "utilities",
+    amount: "4.56",
+    paidAt: "2026-05-04",
+    reference: `API-EXP-${Date.now()}`,
+    description: "API smoke expense",
+  }),
+});
+
+if (!createExpenseResponse.ok) {
+  throw new Error(
+    `/api/finances/expenses POST returned ${createExpenseResponse.status}.`,
+  );
+}
+
+const createExpensePayload = await createExpenseResponse.json();
+const createdExpense = createExpensePayload.expense;
+
+if (
+  !createdExpense?.publicId ||
+  createdExpense.amountCents !== 456 ||
+  createdExpense.category?.slug !== "utilities"
+) {
+  throw new Error("Expense POST did not return the expected payload.");
+}
+
+const updateExpenseResponse = await fetch(
+  `${baseUrl}/api/finances/expenses/${createdExpense.publicId}`,
+  {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      category: "maintenance",
+      amount: "7.89",
+      vendor: "Updated Smoke Vendor",
+      description: "Updated API smoke expense",
+      paidAt: "2026-05-05",
+      notes: "updated by smoke test",
+    }),
+  },
+);
+
+if (!updateExpenseResponse.ok) {
+  throw new Error(
+    `/api/finances/expenses/[id] PATCH returned ${updateExpenseResponse.status}.`,
+  );
+}
+
+const updateExpensePayload = await updateExpenseResponse.json();
+
+if (
+  updateExpensePayload.expense?.amountCents !== 789 ||
+  updateExpensePayload.expense?.category?.slug !== "maintenance" ||
+  updateExpensePayload.expense?.vendor !== "Updated Smoke Vendor"
+) {
+  throw new Error("Expense PATCH did not persist the expected changes.");
+}
+
+const deleteExpenseResponse = await fetch(
+  `${baseUrl}/api/finances/expenses/${createdExpense.publicId}`,
+  {
+    method: "DELETE",
+  },
+);
+
+if (!deleteExpenseResponse.ok) {
+  throw new Error(
+    `/api/finances/expenses/[id] DELETE returned ${deleteExpenseResponse.status}.`,
+  );
+}
+
+const deleteExpensePayload = await deleteExpenseResponse.json();
+
+if (!deleteExpensePayload.deleted) {
+  throw new Error("Expense DELETE did not return a success payload.");
+}
+
+console.log("/api/finances/expenses create/update/delete ok");
+
 console.log(`API smoke test passed against ${baseUrl}.`);

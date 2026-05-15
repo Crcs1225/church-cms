@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiError, parseDate, splitFullName } from "@/lib/api-utils";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 type RouteContext = {
@@ -21,7 +22,10 @@ function memberWhere(id: string) {
 function formatMember(member: NonNullable<Awaited<ReturnType<typeof findMember>>>) {
   const fullName = [member.firstName, member.lastName].filter(Boolean).join(" ");
   const totalGivingCents = member.contributions.reduce(
-    (sum, contribution) => sum + contribution.amountCents,
+    (
+      sum: number,
+      contribution: { amountCents: number },
+    ) => sum + contribution.amountCents,
     0,
   );
 
@@ -38,7 +42,7 @@ function formatMember(member: NonNullable<Awaited<ReturnType<typeof findMember>>
     status: member.status,
     memberType: member.memberType,
     totalGivingCents,
-    contributions: member.contributions.map((contribution) => ({
+    contributions: member.contributions.map((contribution: (typeof member.contributions)[number]) => ({
       publicId: contribution.publicId,
       amountCents: contribution.amountCents,
       paymentMethod: contribution.paymentMethod,
@@ -80,6 +84,12 @@ function findMember(id: string) {
 }
 
 export async function GET(_request: NextRequest, context: RouteContext) {
+  const permission = await requireRequestPermission(_request, "members:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { id } = await context.params;
   const member = await findMember(id);
 
@@ -91,6 +101,12 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  const permission = await requireRequestPermission(request, "members:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { id } = await context.params;
   const existing = await prisma.member.findFirst({
     where: {
@@ -217,7 +233,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   return NextResponse.json({ member: formatMember(member) });
 }
 
-export async function DELETE(_request: NextRequest, context: RouteContext) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  const permission = await requireRequestPermission(request, "members:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { id } = await context.params;
   const existing = await prisma.member.findFirst({
     where: {

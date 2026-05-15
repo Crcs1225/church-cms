@@ -469,3 +469,29 @@ Caused by:
  GET /admin/finances 200 in 3.6s (next.js: 56ms, application-code: 3.5s)
  GET /admin/finances 200 in 177ms (next.js: 15ms, application-code: 162ms)
  GET /admin 200 in 279ms (next.js: 50ms, application-code: 230ms)
+○ Compiling /admin/events ...
+ GET /admin/events 200 in 12.8s (next.js: 12.7s, application-code: 196ms)
+○ Compiling /api/events ...
+ GET /api/events?pageSize=50 200 in 6.9s (next.js: 6.7s, application-code: 187ms)
+ GET /api/events?pageSize=50 200 in 27ms (next.js: 8ms, application-code: 19ms)
+○ Compiling /admin/events/calendar ...
+ GET /admin/events/calendar 200 in 5.1s (next.js: 5.0s, application-code: 120ms)
+ GET /api/events?month=5&year=2026&pageSize=200 200 in 62ms (next.js: 29ms, application-code: 33ms)
+ GET /api/events?month=5&year=2026&pageSize=200 200 in 15ms (next.js: 3ms, application-code: 12ms)
+ GET /admin/events 200 in 893ms (next.js: 170ms, application-code: 723ms)
+ GET /api/events?pageSize=50 200 in 51ms (next.js: 10ms, application-code: 41ms)
+ GET /api/events?pageSize=50 200 in 17ms (next.js: 4ms, application-code: 13ms)
+ GET /api/events?month=5&year=2026&pageSize=200 200 in 61ms (next.js: 19ms, application-code: 42ms)
+ GET /api/events?month=5&year=2026&pageSize=200 200 in 19ms (next.js: 4ms, application-code: 15ms)
+ GET /api/events?pageSize=50 200 in 17ms (next.js: 6ms, application-code: 12ms)
+ GET /api/events?pageSize=50 200 in 19ms (next.js: 3ms, application-code: 16ms)
+ GET /admin/finances 200 in 3.6s (next.js: 3.3s, application-code: 264ms)
+○ Compiling /admin/members ...
+ GET /admin/members 200 in 13.2s (next.js: 12.6s, application-code: 625ms)
+ GET /admin/finances 200 in 330ms (next.js: 121ms, application-code: 209ms)
+ GET /admin/events 200 in 99ms (next.js: 45ms, application-code: 55ms)
+ GET /api/events?pageSize=50 200 in 126ms (next.js: 41ms, application-code: 86ms)
+ GET /api/events?pageSize=50 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /admin/members 200 in 111ms (next.js: 7ms, application-code: 104ms)
+ GET /admin 200 in 189ms (next.js: 54ms, application-code: 135ms)
+[?25h

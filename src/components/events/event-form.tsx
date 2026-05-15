@@ -12,9 +12,11 @@ type EventFormValues = {
   endsAt: string | null;
 };
 
+export type { EventFormValues };
+
 type EventFormProps = {
   initialData?: Partial<EventFormValues>;
-  onSubmit: (values: EventFormValues) => Promise<{ ok: boolean; data?: any; error?: string }>;
+  onSubmit: (values: EventFormValues) => Promise<{ ok: boolean; data?: unknown; error?: string }>;
   submitLabel?: string;
   cancelHref?: string;
 };
@@ -47,7 +49,7 @@ export default function EventForm({
       if (!res.ok) {
         setError(res.error || "An error occurred");
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);

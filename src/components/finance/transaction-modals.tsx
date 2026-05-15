@@ -8,15 +8,18 @@ import { Button, Input, Label, Modal } from "@/components/ui";
 
 type ModalButtonProps = {
   floating?: boolean;
+  floatingHidden?: boolean;
   label?: string;
   memberPublicId?: string;
   memberLabel?: string;
   triggerVariant?: "button" | "icon";
+  onSaved?: () => Promise<void> | void;
 };
 
 type IncomeDialogButtonProps = {
   mode?: "create" | "edit";
   floating?: boolean;
+  floatingHidden?: boolean;
   label?: string;
   memberPublicId?: string;
   memberLabel?: string;
@@ -31,6 +34,7 @@ type IncomeDialogButtonProps = {
     paymentMethod?: string;
   };
   lockMember?: boolean;
+  onSaved?: () => Promise<void> | void;
 };
 
 const incomeCategoryOptions = [
@@ -47,15 +51,20 @@ const paymentMethodOptions = [
   { value: "online-transfer", label: "Online Transfer" },
 ];
 
-function modalButtonClassName(floating?: boolean) {
+function modalButtonClassName(floating?: boolean, floatingHidden?: boolean) {
   return floating
-    ? "fixed right-8 bottom-8 z-50 h-14 w-14 rounded-full p-0 shadow-2xl"
+    ? `fixed right-8 bottom-8 z-50 h-14 w-14 rounded-full p-0 shadow-2xl transition-all duration-200 ${
+      floatingHidden
+        ? "pointer-events-none translate-y-3 opacity-0"
+        : "pointer-events-auto translate-y-0 opacity-100"
+    }`
     : undefined;
 }
 
 function IncomeDialogButton({
   mode = "create",
   floating,
+  floatingHidden,
   label,
   memberPublicId,
   memberLabel,
@@ -63,6 +72,7 @@ function IncomeDialogButton({
   triggerVariant = "button",
   initialValues,
   lockMember = false,
+  onSaved,
 }: IncomeDialogButtonProps) {
   const resolvedMemberPublicId =
     initialValues?.memberPublicId ?? memberPublicId ?? "";
@@ -112,6 +122,12 @@ function IncomeDialogButton({
     }
 
     setOpen(false);
+
+    if (onSaved) {
+      await onSaved();
+      return;
+    }
+
     router.refresh();
   }
 
@@ -120,7 +136,7 @@ function IncomeDialogButton({
       {floating ? (
         <Button
           size="md"
-          className={modalButtonClassName(true)}
+          className={modalButtonClassName(true, floatingHidden)}
           aria-label={resolvedLabel}
           onClick={() => setOpen(true)}
         >
@@ -319,6 +335,7 @@ type EditIncomeDialogButtonProps = {
   amount: string;
   receivedAt: string;
   paymentMethod: string;
+  onSaved?: () => Promise<void> | void;
 };
 
 export function EditIncomeDialogButton({
@@ -329,6 +346,7 @@ export function EditIncomeDialogButton({
   amount,
   receivedAt,
   paymentMethod,
+  onSaved,
 }: EditIncomeDialogButtonProps) {
   return (
     <IncomeDialogButton
@@ -344,18 +362,42 @@ export function EditIncomeDialogButton({
         receivedAt,
         paymentMethod,
       }}
+      onSaved={onSaved}
     />
   );
 }
 
-export function AddExpenseDialogButton({
+function ExpenseDialogButton({
+  mode = "create",
   floating,
-  label = "Add Expense",
-}: ModalButtonProps) {
+  floatingHidden,
+  label,
+  expensePublicId,
+  triggerVariant = "button",
+  initialValues,
+  onSaved,
+}: {
+  mode?: "create" | "edit";
+  floating?: boolean;
+  floatingHidden?: boolean;
+  label?: string;
+  expensePublicId?: string;
+  triggerVariant?: "button" | "edit";
+  initialValues?: {
+    vendor?: string | null;
+    category?: string;
+    amount?: string;
+    paidAt?: string;
+    reference?: string | null;
+    description?: string;
+  };
+  onSaved?: () => Promise<void> | void;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const resolvedLabel = label ?? (mode === "edit" ? "Edit expense" : "Add Expense");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -364,8 +406,12 @@ export function AddExpenseDialogButton({
     setError(null);
     setIsSubmitting(true);
 
-    const response = await fetch("/api/finances/expenses", {
-      method: "POST",
+    const response = await fetch(
+      mode === "edit" && expensePublicId
+        ? `/api/finances/expenses/${expensePublicId}`
+        : "/api/finances/expenses",
+      {
+      method: mode === "edit" ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -383,37 +429,63 @@ export function AddExpenseDialogButton({
     setIsSubmitting(false);
 
     if (!response.ok) {
-      setError(payload?.error?.message ?? "Unable to record expense.");
+      setError(
+        payload?.error?.message ??
+          (mode === "edit" ? "Unable to update expense." : "Unable to record expense."),
+      );
       return;
     }
 
     setOpen(false);
+
+    if (onSaved) {
+      await onSaved();
+      return;
+    }
+
     router.refresh();
   }
 
   return (
     <>
-      <Button
-        size={floating ? "md" : "lg"}
-        className={modalButtonClassName(floating)}
-        aria-label={floating ? label : undefined}
-        onClick={() => setOpen(true)}
-      >
-        {floating ? (
+      {floating ? (
+        <Button
+          size="md"
+          className={modalButtonClassName(true, floatingHidden)}
+          aria-label={resolvedLabel}
+          onClick={() => setOpen(true)}
+        >
           <ReceiptText className="h-6 w-6" aria-hidden />
-        ) : (
-          <>
-            <Plus className="h-5 w-5" aria-hidden />
-            {label}
-          </>
-        )}
-      </Button>
+        </Button>
+      ) : triggerVariant === "edit" ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={resolvedLabel}
+          onClick={() => setOpen(true)}
+        >
+          <Pencil className="h-4 w-4" aria-hidden />
+        </Button>
+      ) : (
+        <Button
+          size="lg"
+          aria-label={resolvedLabel}
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="h-5 w-5" aria-hidden />
+          {resolvedLabel}
+        </Button>
+      )}
 
       <Modal
         open={open}
         onOpenChange={setOpen}
-        title="Record New Expense"
-        description="Capture an expense, vendor payment, or receipt."
+        title={mode === "edit" ? "Edit Expense" : "Record New Expense"}
+        description={
+          mode === "edit"
+            ? "Update this expense record."
+            : "Capture an expense, vendor payment, or receipt."
+        }
         footer={
           <>
             <Button
@@ -424,7 +496,13 @@ export function AddExpenseDialogButton({
               Cancel
             </Button>
             <Button type="submit" form="expense-create-form" disabled={isSubmitting}>
-              {isSubmitting ? "Recording..." : "Record Expense"}
+              {isSubmitting
+                ? mode === "edit"
+                  ? "Saving..."
+                  : "Recording..."
+                : mode === "edit"
+                  ? "Save Changes"
+                  : "Record Expense"}
             </Button>
           </>
         }
@@ -435,6 +513,7 @@ export function AddExpenseDialogButton({
             <Input
               id="expense-payee"
               name="vendor"
+              defaultValue={initialValues?.vendor ?? ""}
               placeholder="Who are you paying?"
             />
           </div>
@@ -448,6 +527,7 @@ export function AddExpenseDialogButton({
                 aria-label="Select expense category"
                 title="Select expense category"
                 className="h-10 w-full rounded-md border border-border bg-surface px-3 text-base outline-none focus:border-primary focus:ring-3 focus:ring-focus-ring"
+                defaultValue={initialValues?.category ?? "utilities"}
               >
                 <option value="utilities">Utilities</option>
                 <option value="salaries">Salaries</option>
@@ -469,6 +549,7 @@ export function AddExpenseDialogButton({
                   className="pl-7"
                   placeholder="0.00"
                   type="number"
+                  defaultValue={initialValues?.amount ?? ""}
                 />
               </div>
             </div>
@@ -477,7 +558,12 @@ export function AddExpenseDialogButton({
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="expense-date">Date</Label>
-              <Input id="expense-date" name="paidAt" type="date" />
+              <Input
+                id="expense-date"
+                name="paidAt"
+                type="date"
+                defaultValue={initialValues?.paidAt ?? ""}
+              />
             </div>
 
             <div className="space-y-2">
@@ -485,6 +571,7 @@ export function AddExpenseDialogButton({
               <Input
                 id="expense-reference"
                 name="reference"
+                defaultValue={initialValues?.reference ?? ""}
                 placeholder="e.g. INV-2026-001"
               />
             </div>
@@ -495,6 +582,7 @@ export function AddExpenseDialogButton({
             <Input
               id="expense-description"
               name="description"
+              defaultValue={initialValues?.description ?? ""}
               placeholder="What was this expense for?"
             />
           </div>
@@ -524,5 +612,53 @@ export function AddExpenseDialogButton({
         </form>
       </Modal>
     </>
+  );
+}
+
+export function AddExpenseDialogButton({
+  floating,
+  label = "Add Expense",
+  onSaved,
+}: ModalButtonProps) {
+  return (
+    <ExpenseDialogButton floating={floating} label={label} onSaved={onSaved} />
+  );
+}
+
+export function EditExpenseDialogButton({
+  expensePublicId,
+  category,
+  amount,
+  paidAt,
+  description,
+  vendor,
+  reference,
+  onSaved,
+}: {
+  expensePublicId: string;
+  category: string;
+  amount: string;
+  paidAt: string;
+  description: string;
+  vendor?: string | null;
+  reference?: string | null;
+  onSaved?: () => Promise<void> | void;
+}) {
+  return (
+    <ExpenseDialogButton
+      mode="edit"
+      label="Edit expense"
+      triggerVariant="edit"
+      expensePublicId={expensePublicId}
+      initialValues={{
+        category,
+        amount,
+        paidAt,
+        description,
+        vendor,
+        reference,
+      }}
+      onSaved={onSaved}
+    />
   );
 }

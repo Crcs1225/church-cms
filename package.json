@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000 --webpack",
+    "dev:turbopack": "next dev",
+    "dev:webpack": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000 --webpack",
     "build": "next build",
     "db:init": "node node_modules/prisma/build/index.js db push",
     "db:generate": "node node_modules/prisma/build/index.js generate",

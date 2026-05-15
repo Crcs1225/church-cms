@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Bell,
   CalendarDays,
@@ -13,8 +14,15 @@ import {
   WalletCards,
   RefreshCw,
 } from "lucide-react";
+import { ActiveAdminUserSwitcher } from "./active-admin-user-switcher";
 import { Avatar, Button, Input } from "@/components/ui";
+import {
+  canAccessAdminPath,
+  getActiveAppUsers,
+  getCurrentAppUser,
+} from "@/lib/admin-access";
 import { cn } from "@/lib/cn";
+import { getChurchSettings } from "@/lib/church-settings";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: Gauge },
@@ -30,28 +38,47 @@ type AdminShellProps = {
   showQuickCreate?: boolean;
 };
 
-export function AdminShell({
+export async function AdminShell({
   children,
   activeSection = "Dashboard",
   showQuickCreate = false,
 }: AdminShellProps) {
+  const [churchSettings, currentUser, activeUsers] = await Promise.all([
+    getChurchSettings(),
+    getCurrentAppUser(),
+    getActiveAppUsers(),
+  ]);
+  const visibleNavItems = navItems.filter((item) =>
+    canAccessAdminPath(currentUser, item.href),
+  );
+
   return (
     <div className="min-h-screen bg-background text-text-primary">
       <aside className="fixed inset-y-0 left-0 z-50 hidden w-sidebar flex-col border-r border-border bg-surface pt-4 pb-8 md:flex">
         <div className="mb-8 flex items-center gap-3 px-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white">
-            <Church className="h-5 w-5" aria-hidden />
-          </div>
+          {churchSettings.logoPath ? (
+            <Image
+              src={churchSettings.logoPath}
+              alt={`${churchSettings.shortName} logo`}
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-md border border-border bg-white object-cover"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white">
+              <Church className="h-5 w-5" aria-hidden />
+            </div>
+          )}
           <div>
             <h1 className="font-display text-lg leading-none text-primary">
-              Grace Community
+              {churchSettings.shortName}
             </h1>
             <p className="text-xs text-text-secondary">Admin Portal</p>
           </div>
         </div>
 
         <nav className="flex-1 space-y-1">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
 
             return (
@@ -73,11 +100,21 @@ export function AdminShell({
         </nav>
 
         <div className="border-t border-border px-6 pt-4">
-          <div className="flex items-center gap-3">
-            <Avatar name="Admin User" />
-            <div>
-              <p className="text-sm font-semibold">Admin User</p>
-              <p className="text-xs text-text-secondary">System Admin</p>
+          <div className="flex items-start gap-3">
+            <Avatar name={currentUser?.fullName ?? "Admin User"} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">
+                {currentUser?.fullName ?? "Admin User"}
+              </p>
+              <p className="text-xs text-text-secondary">
+                {currentUser?.role ?? "No active role"}
+              </p>
+              <div className="mt-3">
+                <ActiveAdminUserSwitcher
+                  currentUserPublicId={currentUser?.publicId ?? null}
+                  users={activeUsers}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -105,9 +142,15 @@ export function AdminShell({
             <Button variant="ghost" size="sm" aria-label="Notifications">
               <Bell className="h-4 w-4" aria-hidden />
             </Button>
-            <Button variant="ghost" size="sm" aria-label="Settings">
-              <Settings className="h-4 w-4" aria-hidden />
-            </Button>
+            {canAccessAdminPath(currentUser, "/admin/settings") ? (
+              <Link
+                href="/admin/settings"
+                aria-label="Settings"
+                className="inline-flex h-8 items-center justify-center gap-2 rounded-md px-3 text-text-secondary transition-all duration-150 hover:bg-surface-raised hover:text-text-primary"
+              >
+                <Settings className="h-4 w-4" aria-hidden />
+              </Link>
+            ) : null}
           </div>
         </header>
 

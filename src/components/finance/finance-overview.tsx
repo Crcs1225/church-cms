@@ -1,48 +1,59 @@
 import Link from "next/link";
-import { CheckCircle2, TrendingUp } from "lucide-react";
+import { CheckCircle2, TrendingDown, TrendingUp } from "lucide-react";
 import { Button, Card, Progress } from "@/components/ui";
 import { FinanceChart } from "./finance-chart";
+import { getFinanceOverviewPageData } from "./finance-data";
 import { FinancePageShell } from "./finance-page-shell";
 import { FinanceStatCard } from "./finance-stat-card";
 import { TransactionTable } from "./transaction-table";
 
-export function FinanceOverview() {
+export async function FinanceOverview() {
+  const overviewData = await getFinanceOverviewPageData();
+
   return (
     <FinancePageShell activeTab="overview">
       <div className="mx-auto max-w-[1200px] space-y-8 px-6 py-10">
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <FinanceStatCard
             label="Total Income"
-            value="$42,850.00"
+            value={overviewData.totalIncome}
             caption="from last 30 days"
             trend={
               <span className="flex items-center text-xs font-semibold text-success">
                 <TrendingUp className="mr-1 h-3 w-3" aria-hidden />
-                +12.5%
+                {overviewData.incomeTrendPercent >= 0 ? "+" : ""}
+                {overviewData.incomeTrendPercent}%
               </span>
             }
           />
           <FinanceStatCard
             label="Total Expenses"
-            value="$28,340.50"
+            value={overviewData.totalExpenses}
             caption="from last 30 days"
             accentClassName="border-l-neutral"
             trend={
               <span className="flex items-center text-xs font-semibold text-error">
-                <TrendingUp className="mr-1 h-3 w-3" aria-hidden />
-                +4.2%
+                <TrendingDown className="mr-1 h-3 w-3" aria-hidden />
+                {overviewData.expenseTrendPercent >= 0 ? "+" : ""}
+                {overviewData.expenseTrendPercent}%
               </span>
             }
           />
           <FinanceStatCard
             label="Net Balance"
-            value="$14,509.50"
+            value={overviewData.netBalance}
             caption="available liquidity"
             accentClassName="border-l-blue-700"
             trend={
-              <span className="flex items-center text-xs font-semibold text-success">
+              <span
+                className={`flex items-center text-xs font-semibold ${
+                  overviewData.netStatusTone === "success"
+                    ? "text-success"
+                    : "text-warning"
+                }`}
+              >
                 <CheckCircle2 className="mr-1 h-3 w-3" aria-hidden />
-                On Track
+                {overviewData.netStatusLabel}
               </span>
             }
           />
@@ -68,7 +79,7 @@ export function FinanceOverview() {
                 </div>
               </div>
             </div>
-            <FinanceChart />
+            <FinanceChart months={overviewData.months} />
           </Card>
 
           <Card className="flex flex-col justify-between p-6">
@@ -77,11 +88,17 @@ export function FinanceOverview() {
               <p className="mb-6 text-xs text-text-secondary">
                 Current allocation for mission projects
               </p>
-              <div className="space-y-4">
-                <Progress value={75} label="Roof Restoration" />
-                <Progress value={42} label="Youth Summer Camp" />
-                <Progress value={90} label="Outreach Program" />
-              </div>
+              {overviewData.fundProgress.length > 0 ? (
+                <div className="space-y-4">
+                  {overviewData.fundProgress.map((fund) => (
+                    <Progress key={fund.publicId} value={fund.progress} label={fund.label} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-text-secondary">
+                  No active fund targets are available yet.
+                </p>
+              )}
             </div>
             <Button variant="secondary" className="mt-8 w-full">
               View Allocation Details
@@ -104,7 +121,7 @@ export function FinanceOverview() {
               See all records
             </Link>
           </div>
-          <TransactionTable />
+          <TransactionTable transactions={overviewData.recentTransactions} />
         </Card>
       </div>
     </FinancePageShell>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiError, parseAmountToCents, parseDate } from "@/lib/api-utils";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 type IncomeRouteContext = {
@@ -9,6 +10,12 @@ type IncomeRouteContext = {
 };
 
 export async function PATCH(request: NextRequest, { params }: IncomeRouteContext) {
+  const permission = await requireRequestPermission(request, "finances:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { id } = await params;
   const body = await request.json().catch(() => null);
 
@@ -155,7 +162,13 @@ export async function PATCH(request: NextRequest, { params }: IncomeRouteContext
   });
 }
 
-export async function DELETE(_: NextRequest, { params }: IncomeRouteContext) {
+export async function DELETE(request: NextRequest, { params }: IncomeRouteContext) {
+  const permission = await requireRequestPermission(request, "finances:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { id } = await params;
 
   const contribution = await prisma.contribution.findUnique({

@@ -1,5 +1,15 @@
 import { MembersPage } from "@/components/members";
 
-export default function AdminMembersPage() {
-  return <MembersPage />;
+type AdminMembersPageProps = {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+};
+
+export default async function AdminMembersPage({
+  searchParams,
+}: AdminMembersPageProps) {
+  const { page } = await searchParams;
+
+  return <MembersPage page={Math.max(1, Number(page ?? "1") || 1)} />;
 }

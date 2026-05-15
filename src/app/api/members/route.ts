@@ -1,6 +1,6 @@
-import { PrismaClientKnownRequestError } from "@/generated/prisma/internal/prismaNamespace";
 import { NextRequest, NextResponse } from "next/server";
 import { apiError, getPagination, parseDate, splitFullName } from "@/lib/api-utils";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 function formatMember(member: {
@@ -50,6 +50,12 @@ function formatMember(member: {
 }
 
 export async function GET(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "members:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { searchParams } = new URL(request.url);
   const { page, pageSize, skip } = getPagination(searchParams);
   const query = searchParams.get("query")?.trim();
@@ -109,6 +115,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "members:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {
@@ -194,10 +206,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ member: formatMember(member) }, { status: 201 });
   } catch (error) {
-    if (
-      error instanceof PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
+    const prismaError = error as { code?: string } | null;
+
+    if (prismaError?.code === "P2002") {
       return apiError("A member with this email already exists.", 409, "CONFLICT");
     }
 

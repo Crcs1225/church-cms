@@ -30,27 +30,25 @@ function EventDetailContent({
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    loadEvent();
-  }, [params.id]);
+    void (async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetch(`/api/events/${params.id}`);
+        const data = await response.json();
 
-  async function loadEvent() {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await fetch(`/api/events/${params.id}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setEvent(data.event);
-      } else {
-        setError(data?.error?.message || "Event not found");
+        if (response.ok) {
+          setEvent(data.event);
+        } else {
+          setError(data?.error?.message || "Event not found");
+        }
+      } catch {
+        setError("Failed to load event");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      setError("Failed to load event");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+    })();
+  }, [params.id]);
 
   async function handleDelete() {
     if (!event || !confirm("Are you sure you want to delete this event?")) {
@@ -68,7 +66,7 @@ function EventDetailContent({
       } else {
         setError("Failed to delete event");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to delete event");
     } finally {
       setIsDeleting(false);

@@ -185,6 +185,57 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
+model AppUser {
+  id          Int      @id @default(autoincrement())
+  publicId    String   @unique @default(uuid()) @map("public_id")
+  fullName    String   @map("full_name")
+  email       String   @unique
+  role        String
+  status      String   @default("active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@index([status])
+  @@map("app_users")
+}
+
+model ChurchSettings {
+  id           Int      @id @default(autoincrement())
+  publicId     String   @unique @default(uuid()) @map("public_id")
+  singletonKey String   @unique @default("default") @map("singleton_key")
+  churchName   String   @map("church_name")
+  shortName    String   @map("short_name")
+  contactEmail String?  @map("contact_email")
+  address      String?
+  phone        String?
+  logoPath     String?  @map("logo_path")
+  dailyDigestEnabled    Boolean  @default(true) @map("daily_digest_enabled")
+  newMemberAlertsEnabled Boolean @default(true) @map("new_member_alerts_enabled")
+  lowBudgetWarningEnabled Boolean @default(false) @map("low_budget_warning_enabled")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("church_settings")
+}
+
+model ReportSignatory {
+  id           Int      @id @default(autoincrement())
+  publicId     String   @unique @default(uuid()) @map("public_id")
+  roleSlug     String   @unique @map("role_slug")
+  roleName     String   @map("role_name")
+  fullName     String   @map("full_name")
+  title        String?
+  email        String?
+  phone        String?
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([sortOrder])
+  @@map("report_signatories")
+}
+
 model ReportSnapshot {
   id          Int      @id @default(autoincrement())
   publicId    String   @unique @default(uuid()) @map("public_id")

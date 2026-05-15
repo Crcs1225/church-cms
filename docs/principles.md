@@ -1,6 +1,6 @@
 # Engineering Principles
 
-This document captures the main implementation principles currently used in the church management app.
+This document captures the main implementation principles currently used in the NTCCGMI Ilog Malino administration app.
 
 ## Core Principles
 

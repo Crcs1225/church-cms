@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiError } from "@/lib/api-utils";
+import type { Prisma } from "@/generated/prisma/client";
+import { apiError, parseDate } from "@/lib/api-utils";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
+
+type EventRouteContext = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
 function formatEvent(event: {
   publicId: string;
@@ -26,9 +34,15 @@ function formatEvent(event: {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: EventRouteContext
 ) {
-  const { id } = params;
+  const permission = await requireRequestPermission(request, "events:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
+  const { id } = await params;
 
   const event = await prisma.event.findUnique({
     where: { publicId: id },
@@ -43,9 +57,15 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: EventRouteContext
 ) {
-  const { id } = params;
+  const permission = await requireRequestPermission(request, "events:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
+  const { id } = await params;
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {
@@ -60,9 +80,15 @@ export async function PATCH(
     return apiError("Event not found.", 404, "NOT_FOUND");
   }
 
-  const updateData: any = {};
+  const updateData: Prisma.EventUpdateInput = {};
   if ("title" in body && typeof body.title === "string") {
-    updateData.title = body.title.trim();
+    const title = body.title.trim();
+
+    if (!title) {
+      return apiError("Event title is required.");
+    }
+
+    updateData.title = title;
   }
   if ("description" in body) {
     updateData.description =
@@ -72,11 +98,32 @@ export async function PATCH(
     updateData.location =
       typeof body.location === "string" ? body.location.trim() || null : null;
   }
-  if ("startsAt" in body && body.startsAt) {
-    updateData.startsAt = new Date(body.startsAt);
+  if ("startsAt" in body) {
+    const startsAt = parseDate(body.startsAt, null);
+
+    if (!startsAt) {
+      return apiError("Event start date must be valid.");
+    }
+
+    updateData.startsAt = startsAt;
   }
   if ("endsAt" in body) {
-    updateData.endsAt = body.endsAt ? new Date(body.endsAt) : null;
+    const endsAt = parseDate(body.endsAt, null);
+
+    if (body.endsAt && !endsAt) {
+      return apiError("Event end date must be valid.");
+    }
+
+    updateData.endsAt = endsAt;
+  }
+
+  const nextStartsAt =
+    updateData.startsAt instanceof Date ? updateData.startsAt : event.startsAt;
+  const nextEndsAt =
+    "endsAt" in updateData ? updateData.endsAt : event.endsAt;
+
+  if (nextEndsAt && nextEndsAt < nextStartsAt) {
+    return apiError("End date must be after start date.");
   }
 
   const updated = await prisma.event.update({
@@ -98,9 +145,15 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: EventRouteContext
 ) {
-  const { id } = params;
+  const permission = await requireRequestPermission(request, "events:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
+  const { id } = await params;
 
   const event = await prisma.event.findUnique({
     where: { publicId: id },

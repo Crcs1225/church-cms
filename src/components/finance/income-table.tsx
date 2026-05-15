@@ -5,15 +5,22 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { Avatar, Badge, Button, DeletionConfirmModal } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { IncomeTableRow } from "./finance-data";
+import type { FinanceTablePagination, IncomeTableRow } from "./finance-data";
 import { EditIncomeDialogButton } from "./transaction-modals";
 
 type IncomeTableProps = {
   rows: IncomeTableRow[];
-  totalRows: number;
+  pagination: FinanceTablePagination;
+  onRefreshData?: () => Promise<void> | void;
+  onPageChange?: (page: number) => void;
 };
 
-export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
+export function IncomeTable({
+  rows,
+  pagination,
+  onRefreshData,
+  onPageChange,
+}: IncomeTableProps) {
   const router = useRouter();
   const [selectedPublicIds, setSelectedPublicIds] = useState<string[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<IncomeTableRow | null>(null);
@@ -22,11 +29,14 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
+  const visibleSelectedPublicIds = selectedPublicIds.filter((publicId) =>
+    rows.some((row) => row.publicId === publicId),
+  );
 
   const allSelected =
-    rows.length > 0 && rows.every((row) => selectedPublicIds.includes(row.publicId));
+    rows.length > 0 && rows.every((row) => visibleSelectedPublicIds.includes(row.publicId));
 
-  const selectedCount = selectedPublicIds.length;
+  const selectedCount = visibleSelectedPublicIds.length;
 
   const selectedLabel = useMemo(() => {
     if (selectedCount === 0) {
@@ -39,6 +49,20 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
 
     return `${selectedCount} income rows selected.`;
   }, [selectedCount]);
+  const startRow = pagination.totalRows === 0
+    ? 0
+    : (pagination.page - 1) * pagination.pageSize + 1;
+  const endRow = pagination.totalRows === 0
+    ? 0
+    : startRow + rows.length - 1;
+  const pageNumbers = useMemo(() => {
+    if (pagination.pageCount <= 5) {
+      return Array.from({ length: pagination.pageCount }, (_, index) => index + 1);
+    }
+
+    const start = Math.max(1, Math.min(pagination.page - 2, pagination.pageCount - 4));
+    return Array.from({ length: 5 }, (_, index) => start + index);
+  }, [pagination.page, pagination.pageCount]);
 
   function toggleSelection(publicId: string) {
     setSelectedPublicIds((current) =>
@@ -69,11 +93,17 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
 
     setSelectedPublicIds((current) => current.filter((value) => value !== publicId));
     setDeleteTarget(null);
+
+    if (onRefreshData) {
+      await onRefreshData();
+      return;
+    }
+
     router.refresh();
   }
 
   async function deleteSelectedRows() {
-    if (selectedPublicIds.length === 0) {
+    if (visibleSelectedPublicIds.length === 0) {
       return;
     }
     setBulkDeleteError(null);
@@ -85,7 +115,7 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        publicIds: selectedPublicIds,
+        publicIds: visibleSelectedPublicIds,
       }),
     });
 
@@ -98,6 +128,12 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
 
     setSelectedPublicIds([]);
     setBulkDeleteOpen(false);
+
+    if (onRefreshData) {
+      await onRefreshData();
+      return;
+    }
+
     router.refresh();
   }
 
@@ -211,6 +247,7 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
                           amount={row.amountValue}
                           receivedAt={row.receivedAtValue}
                           paymentMethod={row.paymentMethod}
+                          onSaved={onRefreshData}
                         />
                         <Button
                           variant="ghost"
@@ -247,26 +284,40 @@ export function IncomeTable({ rows, totalRows }: IncomeTableProps) {
         </table>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-border bg-background px-6 py-4 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-text-secondary">
-          Showing <span className="font-semibold">{rows.length}</span> of{" "}
-          <span className="font-semibold">{totalRows}</span> entries
-        </p>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm">
+      <div className="flex flex-col gap-3 border-t border-border bg-background px-6 pt-4 pr-24 pb-24 md:flex-row md:items-center md:justify-between md:pr-6 md:pb-4">
+        <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end">
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={pagination.page <= 1}
+            onClick={() => onPageChange?.(pagination.page - 1)}
+          >
             Previous
           </Button>
-          <Button size="sm">1</Button>
-          <Button variant="secondary" size="sm">
-            2
-          </Button>
-          <Button variant="secondary" size="sm">
-            3
-          </Button>
-          <Button variant="secondary" size="sm">
+          {pageNumbers.map((pageNumber) => (
+            <Button
+              key={pageNumber}
+              variant={pageNumber === pagination.page ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => onPageChange?.(pageNumber)}
+              disabled={pageNumber === pagination.page}
+            >
+              {pageNumber}
+            </Button>
+          ))}
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={pagination.page >= pagination.pageCount}
+            onClick={() => onPageChange?.(pagination.page + 1)}
+          >
             Next
           </Button>
         </div>
+        <p className="text-sm text-text-secondary md:text-right">
+          Showing <span className="font-semibold">{startRow}-{endRow}</span> of{" "}
+          <span className="font-semibold">{pagination.totalRows}</span> entries
+        </p>
       </div>
 
       <DeletionConfirmModal

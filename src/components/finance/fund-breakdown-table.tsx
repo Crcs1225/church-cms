@@ -1,95 +1,91 @@
 import { Badge } from "@/components/ui";
+import { formatCurrency, type FinanceReportFundRow } from "./finance-data";
 
-const fundRows = [
-  {
-    name: "General Fund",
-    budgeted: "$500,000",
-    actual: "$524,300",
-    variance: "+$24,300",
-    varianceClassName: "text-success",
-    status: "Surplus",
-    statusVariant: "success" as const,
-  },
-  {
-    name: "Building Fund",
-    budgeted: "$250,000",
-    actual: "$210,000",
-    variance: "-$40,000",
-    varianceClassName: "text-warning",
-    status: "Shortfall",
-    statusVariant: "warning" as const,
-  },
-  {
-    name: "Missions & Outreach",
-    budgeted: "$150,000",
-    actual: "$158,200",
-    variance: "+$8,200",
-    varianceClassName: "text-success",
-    status: "Surplus",
-    statusVariant: "success" as const,
-  },
-  {
-    name: "Youth Ministry",
-    budgeted: "$60,000",
-    actual: "$59,800",
-    variance: "-$200",
-    varianceClassName: "text-text-secondary",
-    status: "On Track",
-    statusVariant: "default" as const,
-  },
-  {
-    name: "Benevolence Fund",
-    budgeted: "$40,000",
-    actual: "$42,500",
-    variance: "+$2,500",
-    varianceClassName: "text-success",
-    status: "Surplus",
-    statusVariant: "success" as const,
-  },
-];
+type FundBreakdownTableProps = {
+  rows: FinanceReportFundRow[];
+};
 
-export function FundBreakdownTable() {
+export function FundBreakdownTable({ rows }: FundBreakdownTableProps) {
+  const totals = rows.reduce(
+    (summary, row) => ({
+      targetCents:
+        summary.targetCents + (row.targetCents ?? 0),
+      allocatedCents: summary.allocatedCents + row.allocatedCents,
+    }),
+    {
+      targetCents: 0,
+      allocatedCents: 0,
+    },
+  );
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left">
         <thead>
           <tr className="bg-background text-[11px] font-semibold tracking-widest text-text-secondary uppercase">
             <th className="px-8 py-4">Fund Name</th>
-            <th className="px-8 py-4">Budgeted</th>
-            <th className="px-8 py-4">Actual</th>
-            <th className="px-8 py-4">Variance</th>
+            <th className="px-8 py-4">Target</th>
+            <th className="px-8 py-4">Allocated</th>
+            <th className="px-8 py-4">Remaining</th>
             <th className="px-8 py-4 text-right">Status</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {fundRows.map((row) => (
-            <tr key={row.name} className="transition-colors hover:bg-background">
-              <td className="px-8 py-5 font-semibold text-text-primary">
-                {row.name}
-              </td>
-              <td className="px-8 py-5 text-text-secondary">{row.budgeted}</td>
-              <td className="px-8 py-5 font-semibold text-text-primary">
-                {row.actual}
-              </td>
-              <td className={`px-8 py-5 font-semibold ${row.varianceClassName}`}>
-                {row.variance}
-              </td>
-              <td className="px-8 py-5 text-right">
-                <Badge variant={row.statusVariant}>{row.status}</Badge>
-              </td>
-            </tr>
-          ))}
+          {rows.map((row) => {
+            const remainingCents =
+              row.targetCents === null ? null : row.targetCents - row.allocatedCents;
+            const varianceClassName =
+              remainingCents === null
+                ? "text-text-secondary"
+                : typeof remainingCents === "number" && remainingCents < 0
+                  ? "text-success"
+                  : typeof remainingCents === "number" && remainingCents === 0
+                    ? "text-text-secondary"
+                    : "text-warning";
+            const status =
+              row.targetCents === null
+                ? { label: "No Target", variant: "default" as const }
+                : typeof remainingCents === "number" && remainingCents < 0
+                  ? { label: "Over Target", variant: "success" as const }
+                  : typeof remainingCents === "number" && remainingCents === 0
+                    ? { label: "Funded", variant: "primary" as const }
+                    : { label: "Open", variant: "warning" as const };
+
+            return (
+              <tr key={row.publicId} className="transition-colors hover:bg-background">
+                <td className="px-8 py-5 font-semibold text-text-primary">
+                  {row.name}
+                </td>
+                <td className="px-8 py-5 text-text-secondary">
+                  {row.targetCents === null ? "Not set" : formatCurrency(row.targetCents)}
+                </td>
+                <td className="px-8 py-5 font-semibold text-text-primary">
+                  {formatCurrency(row.allocatedCents)}
+                </td>
+                <td className={`px-8 py-5 font-semibold ${varianceClassName}`}>
+                  {remainingCents === null ? "Flexible" : formatCurrency(remainingCents)}
+                </td>
+                <td className="px-8 py-5 text-right">
+                  <Badge variant={status.variant}>{status.label}</Badge>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
         <tfoot className="bg-background">
           <tr>
             <td className="px-8 py-6 font-semibold text-text-primary">
-              Total Operating Budget
+              Total Active Funds
             </td>
             <td className="px-8 py-6 font-semibold text-text-secondary">
-              $1,000,000
+              {formatCurrency(totals.targetCents)}
             </td>
-            <td className="px-8 py-6 font-semibold text-primary">$994,800</td>
-            <td className="px-8 py-6 font-semibold text-warning">-$5,200</td>
+            <td className="px-8 py-6 font-semibold text-primary">
+              {formatCurrency(totals.allocatedCents)}
+            </td>
+            <td className="px-8 py-6 font-semibold text-warning">
+              {formatCurrency(totals.targetCents - totals.allocatedCents)}
+            </td>
             <td className="px-8 py-6" />
           </tr>
         </tfoot>

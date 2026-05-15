@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminShell } from "@/components/admin";
 import { Button } from "@/components/ui";
-import EventForm from "@/components/events/event-form";
+import EventForm, { type EventFormValues } from "@/components/events/event-form";
 
 type Event = {
   publicId: string;
@@ -29,71 +29,31 @@ function EditEventContent({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    loadEvent();
+    void (async () => {
+      try {
+        const response = await fetch(`/api/events/${params.id}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          const evt = data.event;
+          const start = new Date(evt.startsAt);
+          const end = evt.endsAt ? new Date(evt.endsAt) : null;
+
+          setEvent({
+            ...evt,
+            startsAt: start.toISOString().slice(0, 16),
+            endsAt: end ? end.toISOString().slice(0, 16) : "",
+          });
+        } else {
+          setError("Event not found");
+        }
+      } catch {
+        setError("Failed to load event");
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }, [params.id]);
-
-  async function loadEvent() {
-    try {
-      const response = await fetch(`/api/events/${params.id}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        const evt = data.event;
-        // Convert ISO strings to datetime-local format
-        const start = new Date(evt.startsAt);
-        const end = evt.endsAt ? new Date(evt.endsAt) : null;
-
-        setEvent({
-          ...evt,
-          startsAt: start.toISOString().slice(0, 16),
-          endsAt: end ? end.toISOString().slice(0, 16) : "",
-        });
-      } else {
-        setError("Event not found");
-      }
-    } catch (err) {
-      setError("Failed to load event");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!event) return;
-
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      const response = await fetch(`/api/events/${event.publicId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: formData.get("title"),
-          description: formData.get("description") || null,
-          location: formData.get("location") || null,
-          startsAt: formData.get("startsAt"),
-          endsAt: formData.get("endsAt") || null,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push(`/admin/events/${event.publicId}`);
-      } else {
-        setError(data?.error?.message || "Failed to update event");
-      }
-    } catch (err) {
-      setError("Failed to update event");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
 
   if (isLoading) {
     return (
@@ -142,7 +102,7 @@ function EditEventContent({
         }}
         cancelHref={`/admin/events/${event.publicId}`}
         submitLabel={isSubmitting ? "Saving..." : "Save Changes"}
-        onSubmit={async (values) => {
+        onSubmit={async (values: EventFormValues) => {
           setIsSubmitting(true);
           try {
             const response = await fetch(`/api/events/${event.publicId}`, {
@@ -153,12 +113,11 @@ function EditEventContent({
 
             const data = await response.json();
             if (response.ok) {
-              // navigate back to event
               router.push(`/admin/events/${event.publicId}`);
               return { ok: true, data };
             }
             return { ok: false, error: data?.error?.message || "Failed to update event" };
-          } catch (err) {
+          } catch {
             return { ok: false, error: "Failed to update event" };
           } finally {
             setIsSubmitting(false);

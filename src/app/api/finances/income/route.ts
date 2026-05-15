@@ -1,4 +1,4 @@
-import { PrismaClientKnownRequestError } from "@/generated/prisma/internal/prismaNamespace";
+import { Prisma } from "@/generated/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import {
   apiError,
@@ -6,6 +6,8 @@ import {
   parseAmountToCents,
   parseDate,
 } from "@/lib/api-utils";
+import { getFinanceIncomePageData } from "@/components/finance/finance-data";
+import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
 function formatContribution(contribution: {
@@ -42,71 +44,34 @@ function formatContribution(contribution: {
 }
 
 export async function GET(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "finances:view");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const { searchParams } = new URL(request.url);
-  const { page, pageSize, skip } = getPagination(searchParams);
-  const category = searchParams.get("category")?.trim();
-  const member = searchParams.get("member")?.trim();
-
-  const where = {
-    ...(category ? { category: { slug: category } } : {}),
-    ...(member
-      ? {
-          OR: [
-            { publicId: { contains: member } },
-            {
-              member: {
-                OR: [
-                  { publicId: { contains: member } },
-                  { firstName: { contains: member } },
-                  { lastName: { contains: member } },
-                  { email: { contains: member } },
-                ],
-              },
-            },
-          ],
-        }
-      : {}),
+  const { page, pageSize } = getPagination(searchParams);
+  const filters = {
+    memberQuery: searchParams.get("member") ?? undefined,
+    categorySlug: searchParams.get("category") ?? undefined,
+    dateFrom: searchParams.get("dateFrom") ?? undefined,
+    dateTo: searchParams.get("dateTo") ?? undefined,
+    page,
+    pageSize,
   };
+  const viewData = await getFinanceIncomePageData(filters);
 
-  const [contributions, total] = await prisma.$transaction([
-    prisma.contribution.findMany({
-      where,
-      orderBy: [{ receivedAt: "desc" }, { id: "desc" }],
-      skip,
-      take: pageSize,
-      include: {
-        member: {
-          select: {
-            publicId: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-            slug: true,
-            isRestricted: true,
-          },
-        },
-      },
-    }),
-    prisma.contribution.count({ where }),
-  ]);
-
-  return NextResponse.json({
-    contributions: contributions.map(formatContribution),
-    pagination: {
-      page,
-      pageSize,
-      total,
-      pageCount: Math.ceil(total / pageSize),
-    },
-  });
+  return NextResponse.json(viewData);
 }
 
 export async function POST(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "finances:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {
@@ -239,7 +204,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return apiError("Unable to record income.", 400);
     }
 
@@ -248,6 +213,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const permission = await requireRequestPermission(request, "finances:manage");
+
+  if (permission.response) {
+    return permission.response;
+  }
+
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object" || !("publicIds" in body) || !Array.isArray(body.publicIds)) {

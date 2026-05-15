@@ -67,6 +67,127 @@ const insertFunds = db.transaction((rows) => {
   }
 });
 
+const insertReportSignatories = db.transaction((rows) => {
+  const statement = db.prepare(`
+    INSERT INTO report_signatories (
+      public_id,
+      role_slug,
+      role_name,
+      full_name,
+      title,
+      email,
+      phone,
+      sort_order,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      @publicId,
+      @roleSlug,
+      @roleName,
+      @fullName,
+      @title,
+      @email,
+      @phone,
+      @sortOrder,
+      CURRENT_TIMESTAMP,
+      CURRENT_TIMESTAMP
+    )
+    ON CONFLICT(role_slug) DO UPDATE SET
+      role_name = excluded.role_name,
+      full_name = excluded.full_name,
+      title = excluded.title,
+      email = excluded.email,
+      phone = excluded.phone,
+      sort_order = excluded.sort_order,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+
+  for (const row of rows) {
+    statement.run(withPublicId(row));
+  }
+});
+
+const insertChurchSettings = db.transaction((row) => {
+  const statement = db.prepare(`
+    INSERT INTO church_settings (
+      public_id,
+      singleton_key,
+      church_name,
+      short_name,
+      contact_email,
+      address,
+      phone,
+      logo_path,
+      daily_digest_enabled,
+      new_member_alerts_enabled,
+      low_budget_warning_enabled,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      @publicId,
+      @singletonKey,
+      @churchName,
+      @shortName,
+      @contactEmail,
+      @address,
+      @phone,
+      @logoPath,
+      @dailyDigestEnabled,
+      @newMemberAlertsEnabled,
+      @lowBudgetWarningEnabled,
+      CURRENT_TIMESTAMP,
+      CURRENT_TIMESTAMP
+    )
+    ON CONFLICT(singleton_key) DO UPDATE SET
+      church_name = excluded.church_name,
+      short_name = excluded.short_name,
+      contact_email = excluded.contact_email,
+      address = excluded.address,
+      phone = excluded.phone,
+      logo_path = excluded.logo_path,
+      daily_digest_enabled = excluded.daily_digest_enabled,
+      new_member_alerts_enabled = excluded.new_member_alerts_enabled,
+      low_budget_warning_enabled = excluded.low_budget_warning_enabled,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+
+  statement.run(withPublicId(row));
+});
+
+const insertAppUsers = db.transaction((rows) => {
+  const statement = db.prepare(`
+    INSERT INTO app_users (
+      public_id,
+      full_name,
+      email,
+      role,
+      status,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      @publicId,
+      @fullName,
+      @email,
+      @role,
+      @status,
+      CURRENT_TIMESTAMP,
+      CURRENT_TIMESTAMP
+    )
+    ON CONFLICT(email) DO UPDATE SET
+      full_name = excluded.full_name,
+      role = excluded.role,
+      status = excluded.status,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+
+  for (const row of rows) {
+    statement.run(withPublicId(row));
+  }
+});
+
 const insertSampleMembers = db.transaction((rows) => {
   const memberStatement = db.prepare(`
     INSERT INTO members (
@@ -254,6 +375,79 @@ insertFunds([
   },
 ]);
 
+insertChurchSettings({
+  singletonKey: "default",
+  churchName: "The New Testament Christian Church Global Ministry Incorporated",
+  shortName: "NTCCGMI Ilog Malino",
+  contactEmail: "admin@ntccgmi-ilogmalino.org",
+  address: "Ilog Malino, Bolinao, Pangasinan",
+  phone: "+63 917 000 0000",
+  logoPath: null,
+  dailyDigestEnabled: 1,
+  newMemberAlertsEnabled: 1,
+  lowBudgetWarningEnabled: 0,
+});
+
+insertAppUsers([
+  {
+    fullName: "John Doe",
+    email: "john@ntccgmi-ilogmalino.org",
+    role: "Lead Pastor",
+    status: "active",
+  },
+  {
+    fullName: "Sarah Roberts",
+    email: "sarah@ntccgmi-ilogmalino.org",
+    role: "Admin",
+    status: "active",
+  },
+  {
+    fullName: "Michael King",
+    email: "m.king@ntccgmi-ilogmalino.org",
+    role: "Finance Lead",
+    status: "active",
+  },
+]);
+
+insertReportSignatories([
+  {
+    roleSlug: "pastor",
+    roleName: "Pastor",
+    fullName: "John Doe",
+    title: "Admin Pastor",
+    email: "john@ntccgmi-ilogmalino.org",
+    phone: "+63 917 100 1001",
+    sortOrder: 1,
+  },
+  {
+    roleSlug: "treasurer",
+    roleName: "Treasurer",
+    fullName: "Michael King",
+    title: "Church Treasurer",
+    email: "m.king@ntccgmi-ilogmalino.org",
+    phone: "+63 917 100 1002",
+    sortOrder: 2,
+  },
+  {
+    roleSlug: "auditor",
+    roleName: "Auditor",
+    fullName: "Sarah Roberts",
+    title: "Church Auditor",
+    email: "sarah@ntccgmi-ilogmalino.org",
+    phone: "+63 917 100 1003",
+    sortOrder: 3,
+  },
+  {
+    roleSlug: "secretary",
+    roleName: "Secretary",
+    fullName: "Anna Cruz",
+    title: "Church Secretary",
+    email: "anna@ntccgmi-ilogmalino.org",
+    phone: "+63 917 100 1004",
+    sortOrder: 4,
+  },
+]);
+
 insertSampleMembers([
   {
     firstName: "Elias",
@@ -310,4 +504,4 @@ insertSampleMembers([
 
 db.close();
 
-console.log("Seeded member types, categories, funds, and sample members.");
+console.log("Seeded member types, categories, funds, church settings, app users, report signatories, and sample members.");

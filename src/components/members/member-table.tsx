@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { Edit, Eye } from "lucide-react";
 import { AddIncomeDialogButton } from "@/components/finance/transaction-modals";
 import { Avatar, Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { MemberTableRow } from "./members-data";
+import type { MembersTablePagination, MemberTableRow } from "./members-data";
 
 function PresenceDot({ active }: { active: boolean }) {
   return (
@@ -20,9 +21,25 @@ function PresenceDot({ active }: { active: boolean }) {
 
 type MemberTableProps = {
   members: MemberTableRow[];
+  pagination: MembersTablePagination;
 };
 
-export function MemberTable({ members }: MemberTableProps) {
+export function MemberTable({ members, pagination }: MemberTableProps) {
+  const startRow = pagination.totalRows === 0
+    ? 0
+    : (pagination.page - 1) * pagination.pageSize + 1;
+  const endRow = pagination.totalRows === 0
+    ? 0
+    : startRow + members.length - 1;
+  const pageNumbers = useMemo(() => {
+    if (pagination.pageCount <= 5) {
+      return Array.from({ length: pagination.pageCount }, (_, index) => index + 1);
+    }
+
+    const start = Math.max(1, Math.min(pagination.page - 2, pagination.pageCount - 4));
+    return Array.from({ length: 5 }, (_, index) => start + index);
+  }, [pagination.page, pagination.pageCount]);
+
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -132,26 +149,64 @@ export function MemberTable({ members }: MemberTableProps) {
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-border bg-background p-4">
-        <Button variant="secondary" size="sm">
-          Previous
-        </Button>
-        <div className="flex items-center gap-2">
-          <Button size="sm">1</Button>
-          <Button variant="ghost" size="sm">
-            2
-          </Button>
-          <Button variant="ghost" size="sm">
-            3
-          </Button>
-          <span className="px-1 text-text-secondary">...</span>
-          <Button variant="ghost" size="sm">
-            128
-          </Button>
+      <div className="flex flex-col gap-3 border-t border-border bg-background px-6 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center justify-start gap-2">
+          <Link
+            href={
+              pagination.page - 1 <= 1
+                ? "/admin/members"
+                : `/admin/members?page=${pagination.page - 1}`
+            }
+            aria-disabled={pagination.page <= 1}
+            tabIndex={pagination.page <= 1 ? -1 : undefined}
+            className={pagination.page <= 1 ? "pointer-events-none" : undefined}
+          >
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={pagination.page <= 1}
+            >
+              Previous
+            </Button>
+          </Link>
+          {pageNumbers.map((pageNumber) => (
+            <Link
+              key={pageNumber}
+              href={pageNumber === 1 ? "/admin/members" : `/admin/members?page=${pageNumber}`}
+              aria-current={pageNumber === pagination.page ? "page" : undefined}
+            >
+              <Button
+                variant={pageNumber === pagination.page ? "primary" : "secondary"}
+                size="sm"
+                disabled={pageNumber === pagination.page}
+              >
+                {pageNumber}
+              </Button>
+            </Link>
+          ))}
+          <Link
+            href={
+              pagination.page + 1 === 1
+                ? "/admin/members"
+                : `/admin/members?page=${pagination.page + 1}`
+            }
+            aria-disabled={pagination.page >= pagination.pageCount}
+            tabIndex={pagination.page >= pagination.pageCount ? -1 : undefined}
+            className={pagination.page >= pagination.pageCount ? "pointer-events-none" : undefined}
+          >
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={pagination.page >= pagination.pageCount}
+            >
+              Next
+            </Button>
+          </Link>
         </div>
-        <Button variant="secondary" size="sm">
-          Next
-        </Button>
+        <p className="text-sm text-text-secondary md:text-right">
+          Showing <span className="font-semibold">{startRow}-{endRow}</span> of{" "}
+          <span className="font-semibold">{pagination.totalRows}</span> entries
+        </p>
       </div>
     </div>
   );

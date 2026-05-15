@@ -5,16 +5,15 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminShell } from "@/components/admin";
 import { Button } from "@/components/ui";
-import { useState, FormEvent } from "react";
-import EventForm from "@/components/events/event-form";
+import { useState } from "react";
+import EventForm, { type EventFormValues } from "@/components/events/event-form";
+import { CHURCH_NAME_SHORT } from "@/lib/branding";
 
 export default function CreateEventPage() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(values: any) {
-    setError(null);
+  async function handleSubmit(values: EventFormValues) {
     setIsSubmitting(true);
 
     try {
@@ -32,7 +31,7 @@ export default function CreateEventPage() {
       } else {
         return { ok: false, error: data?.error?.message || "Failed to create event" };
       }
-    } catch (err) {
+    } catch {
       return { ok: false, error: "Failed to create event" };
     } finally {
       setIsSubmitting(false);
@@ -56,7 +55,7 @@ export default function CreateEventPage() {
             Create New Event
           </h1>
           <p className="text-text-secondary mt-2">
-            Add a gathering or activity to the Grace Community calendar
+            Add a gathering or activity to the {CHURCH_NAME_SHORT} calendar
           </p>
         </div>
 

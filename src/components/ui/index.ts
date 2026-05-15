@@ -4,6 +4,7 @@ export * from "./button";
 export * from "./card";
 export * from "./deletion-confirm-modal";
 export * from "./input";
+export * from "./loading-screen";
 export * from "./modal";
 export * from "./progress";
 export * from "./tabs";

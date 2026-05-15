@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AdminShell } from "@/components/admin";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { FinanceTabs } from "./finance-tabs";
 
 type FinancePageShellProps = {
