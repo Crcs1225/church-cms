@@ -9,7 +9,7 @@
     "dev:webpack": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000 --webpack",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run lint && npm run test:data",
-    "build": "next build",
+    "build": "node node_modules/next/dist/bin/next build --webpack",
     "prebuild": "npm run verify",
     "db:init": "node node_modules/prisma/build/index.js db push",
     "db:generate": "node node_modules/prisma/build/index.js generate",
@@ -46,6 +46,6 @@
   },
   "simple-git-hooks": {
     "pre-commit": "npm run typecheck && npm run lint",
-    "pre-push": "npm run verify && npm run build"
+    "pre-push": "npm run verify"
   }
 }

@@ -63,6 +63,8 @@ Notes:
 node_modules\.bin\next.cmd dev --hostname 127.0.0.1 --port 3000 --webpack
 ```
 
+- Local `pre-push` runs `npm run verify`. Production build validation is handled in CI because this Windows environment can hit a Next.js dynamic-route filesystem build issue.
+
 ## Database
 
 Prisma is the source of truth for the schema.

@@ -93,8 +93,10 @@ cmd /c npm run dev
 Automated checks now run in two places:
 
 - `pre-commit`: `npm run typecheck` and `npm run lint`
-- `pre-push`: `npm run verify` and `npm run build`
-- GitHub Actions: mirrors the push checks on every push and pull request
+- `pre-push`: `npm run verify`
+- GitHub Actions: runs verify on Windows and production build on Ubuntu for every push and pull request
+
+The production build is intentionally owned by CI instead of the local `pre-push` hook because this Windows setup can hit a Next.js filesystem issue when building dynamic API routes.
 
 `test:api` is still manual because it requires the Next dev server to be running.
 

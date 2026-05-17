@@ -4,7 +4,7 @@ import { apiError, parseDate } from "@/lib/api-utils";
 import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";
 
-type EventRouteContext = {
+type RouteContext = {
   params: Promise<{
     id: string;
   }>;
@@ -32,21 +32,21 @@ function formatEvent(event: {
   };
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: EventRouteContext
-) {
+function findEvent(id: string) {
+  return prisma.event.findUnique({
+    where: { publicId: id },
+  });
+}
+
+export async function GET(request: NextRequest, context: RouteContext) {
   const permission = await requireRequestPermission(request, "events:view");
 
   if (permission.response) {
     return permission.response;
   }
 
-  const { id } = await params;
-
-  const event = await prisma.event.findUnique({
-    where: { publicId: id },
-  });
+  const { id } = await context.params;
+  const event = await findEvent(id);
 
   if (!event) {
     return apiError("Event not found.", 404, "NOT_FOUND");
@@ -55,32 +55,28 @@ export async function GET(
   return NextResponse.json({ event: formatEvent(event) });
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: EventRouteContext
-) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   const permission = await requireRequestPermission(request, "events:manage");
 
   if (permission.response) {
     return permission.response;
   }
 
-  const { id } = await params;
+  const { id } = await context.params;
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== "object") {
     return apiError("Request body must be valid JSON.");
   }
 
-  const event = await prisma.event.findUnique({
-    where: { publicId: id },
-  });
+  const event = await findEvent(id);
 
   if (!event) {
     return apiError("Event not found.", 404, "NOT_FOUND");
   }
 
   const updateData: Prisma.EventUpdateInput = {};
+
   if ("title" in body && typeof body.title === "string") {
     const title = body.title.trim();
 
@@ -90,14 +86,17 @@ export async function PATCH(
 
     updateData.title = title;
   }
+
   if ("description" in body) {
     updateData.description =
       typeof body.description === "string" ? body.description.trim() || null : null;
   }
+
   if ("location" in body) {
     updateData.location =
       typeof body.location === "string" ? body.location.trim() || null : null;
   }
+
   if ("startsAt" in body) {
     const startsAt = parseDate(body.startsAt, null);
 
@@ -107,6 +106,7 @@ export async function PATCH(
 
     updateData.startsAt = startsAt;
   }
+
   if ("endsAt" in body) {
     const endsAt = parseDate(body.endsAt, null);
 
@@ -143,21 +143,15 @@ export async function PATCH(
   return NextResponse.json({ event: formatEvent(updated) });
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: EventRouteContext
-) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   const permission = await requireRequestPermission(request, "events:manage");
 
   if (permission.response) {
     return permission.response;
   }
 
-  const { id } = await params;
-
-  const event = await prisma.event.findUnique({
-    where: { publicId: id },
-  });
+  const { id } = await context.params;
+  const event = await findEvent(id);
 
   if (!event) {
     return apiError("Event not found.", 404, "NOT_FOUND");
@@ -178,6 +172,6 @@ export async function DELETE(
 
   return NextResponse.json(
     { message: "Event deleted successfully." },
-    { status: 200 }
+    { status: 200 },
   );
 }

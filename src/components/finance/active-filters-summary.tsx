@@ -1,7 +1,3 @@
-import Link from "next/link";
-import { FilterX } from "lucide-react";
-import { Button } from "@/components/ui";
-
 type ActiveFilter = {
   label: string;
   value: string;
@@ -9,15 +5,9 @@ type ActiveFilter = {
 
 type ActiveFiltersSummaryProps = {
   filters: ActiveFilter[];
-  resetHref?: string;
-  onReset?: () => void;
 };
 
-export function ActiveFiltersSummary({
-  filters,
-  resetHref,
-  onReset,
-}: ActiveFiltersSummaryProps) {
+export function ActiveFiltersSummary({ filters }: ActiveFiltersSummaryProps) {
   const hasFilters = filters.length > 0;
 
   return (
