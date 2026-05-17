@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Banknote, CalendarDays, Pencil, TrendingUp } from "lucide-react";
 import { AdminShell } from "@/components/admin";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { getMemberProfileData } from "./members-data";
 import { MemberContributionCard } from "./member-contribution-card";
 import { MemberEngagement } from "./member-engagement";
@@ -11,9 +12,15 @@ import { MemberProfileSummary } from "./member-profile-summary";
 
 type MemberProfilePageProps = {
   memberId: string;
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
 };
 
-export async function MemberProfilePage({ memberId }: MemberProfilePageProps) {
+export async function MemberProfilePage({
+  memberId,
+  currentUser,
+  activeUsers,
+}: MemberProfilePageProps) {
   const member = await getMemberProfileData(memberId);
 
   if (!member) {
@@ -21,7 +28,12 @@ export async function MemberProfilePage({ memberId }: MemberProfilePageProps) {
   }
 
   return (
-    <AdminShell activeSection="Members" showQuickCreate={false}>
+    <AdminShell
+      activeSection="Members"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+      showQuickCreate={false}
+    >
       <main className="mx-auto max-w-[1200px] space-y-6 px-6 py-6">
         <Link
           href="/admin/members"

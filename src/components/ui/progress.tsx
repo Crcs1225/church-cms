@@ -20,10 +20,21 @@ export function Progress({ value, label, className }: ProgressProps) {
         </div>
       ) : null}
       <div className="h-1 overflow-hidden rounded-full bg-surface-raised">
-        <div
-          className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
-          style={{ width: `${normalizedValue}%` }}
-        />
+        <svg
+          className="h-full w-full"
+          viewBox="0 0 100 4"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          <rect
+            x="0"
+            y="0"
+            width={normalizedValue}
+            height="4"
+            rx="2"
+            className="fill-primary"
+          />
+        </svg>
       </div>
     </div>
   );

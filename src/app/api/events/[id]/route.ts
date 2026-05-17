@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from "@prisma/client";
 import { apiError, parseDate } from "@/lib/api-utils";
 import { requireRequestPermission } from "@/lib/admin-access";
 import { prisma } from "@/lib/prisma";

@@ -1,13 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, type FormEvent } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Building2, LoaderCircle, Mail, MapPin, Phone, Upload } from "lucide-react";
-import {
-  INITIAL_SETTINGS_ACTION_STATE,
-  saveChurchProfileAction,
-  uploadChurchLogoAction,
-} from "@/app/admin/settings/actions";
 import { Button, Card, Input, Label } from "@/components/ui";
 import type { ChurchSettingsData } from "@/lib/church-settings";
 
@@ -16,14 +12,73 @@ type ChurchProfileCardProps = {
 };
 
 export function ChurchProfileCard({ settings }: ChurchProfileCardProps) {
-  const [profileState, profileAction, isProfilePending] = useActionState(
-    saveChurchProfileAction,
-    INITIAL_SETTINGS_ACTION_STATE,
-  );
-  const [logoState, logoAction, isLogoPending] = useActionState(
-    uploadChurchLogoAction,
-    INITIAL_SETTINGS_ACTION_STATE,
-  );
+  const router = useRouter();
+  const [isProfilePending, setIsProfilePending] = useState(false);
+  const [isLogoPending, setIsLogoPending] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [logoMessage, setLogoMessage] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+
+  async function handleLogoSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLogoPending(true);
+    setLogoError(null);
+    setLogoMessage(null);
+
+    try {
+      const response = await fetch("/api/settings/church-logo", {
+        method: "POST",
+        body: new FormData(event.currentTarget),
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setLogoError(payload?.error?.message ?? "Unable to upload church logo.");
+        return;
+      }
+
+      setLogoMessage("Church logo updated.");
+      router.refresh();
+      event.currentTarget.reset();
+    } finally {
+      setIsLogoPending(false);
+    }
+  }
+
+  async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsProfilePending(true);
+    setProfileError(null);
+    setProfileMessage(null);
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      const response = await fetch("/api/settings/church-profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          churchName: String(formData.get("churchName") ?? ""),
+          shortName: String(formData.get("shortName") ?? ""),
+          contactEmail: String(formData.get("contactEmail") ?? ""),
+          address: String(formData.get("address") ?? ""),
+          phone: String(formData.get("phone") ?? ""),
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setProfileError(payload?.error?.message ?? "Unable to update church profile.");
+        return;
+      }
+
+      setProfileMessage("Church profile updated.");
+      router.refresh();
+    } finally {
+      setIsProfilePending(false);
+    }
+  }
 
   return (
     <Card className="rounded-xl p-6">
@@ -55,7 +110,10 @@ export function ChurchProfileCard({ settings }: ChurchProfileCardProps) {
           </div>
         </div>
 
-        <form className="space-y-3 border-b border-border pb-6" action={logoAction}>
+        <form
+          className="space-y-3 border-b border-border pb-6"
+          onSubmit={handleLogoSubmit}
+        >
           <div className="max-w-md space-y-2">
             <Label htmlFor="settings-logo">Upload Logo</Label>
             <Input
@@ -81,20 +139,20 @@ export function ChurchProfileCard({ settings }: ChurchProfileCardProps) {
             </div>
           </div>
 
-          {logoState.status === "error" && logoState.message ? (
+          {logoError ? (
             <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {logoState.message}
+              {logoError}
             </p>
           ) : null}
 
-          {logoState.status === "success" && logoState.message ? (
+          {logoMessage ? (
             <p className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-              {logoState.message}
+              {logoMessage}
             </p>
           ) : null}
         </form>
 
-        <form className="space-y-6" action={profileAction}>
+        <form className="space-y-6" onSubmit={handleProfileSubmit}>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="settings-church-name">Church Name</Label>
@@ -160,15 +218,15 @@ export function ChurchProfileCard({ settings }: ChurchProfileCardProps) {
             </div>
           </div>
 
-          {profileState.status === "error" && profileState.message ? (
+          {profileError ? (
             <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {profileState.message}
+              {profileError}
             </p>
           ) : null}
 
-          {profileState.status === "success" && profileState.message ? (
+          {profileMessage ? (
             <p className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-              {profileState.message}
+              {profileMessage}
             </p>
           ) : null}
 

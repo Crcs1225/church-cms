@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Pencil, Signature } from "lucide-react";
-import { saveReportSignatoryAction } from "@/app/admin/settings/actions";
 import { Badge, Button, Card, Input, Label, Modal } from "@/components/ui";
 import type { ReportSignatoryItem } from "@/lib/report-signatories";
 
@@ -13,6 +13,7 @@ type ReportSignatoriesManagerProps = {
 export function ReportSignatoriesManager({
   signatories,
 }: ReportSignatoriesManagerProps) {
+  const router = useRouter();
   const [editingSignatory, setEditingSignatory] =
     useState<ReportSignatoryItem | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -28,18 +29,29 @@ export function ReportSignatoriesManager({
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
-      const result = await saveReportSignatoryAction(
-        { status: "idle", message: null },
-        formData,
+      const response = await fetch(
+        `/api/settings/report-signatories/${editingSignatory.publicId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: String(formData.get("fullName") ?? ""),
+            title: String(formData.get("title") ?? ""),
+            email: String(formData.get("email") ?? ""),
+            phone: String(formData.get("phone") ?? ""),
+          }),
+        },
       );
+      const result = await response.json().catch(() => null);
 
-      if (result.status === "error") {
-        setError(result.message ?? "Unable to update report signatory.");
+      if (!response.ok) {
+        setError(result?.error?.message ?? "Unable to update report signatory.");
         return;
       }
 
       setError(null);
       setEditingSignatory(null);
+      router.refresh();
     });
   }
 

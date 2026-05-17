@@ -1,17 +1,26 @@
 import { Card } from "@/components/ui";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { FinancePageShell } from "./finance-page-shell";
 
 type FinancePlaceholderProps = {
   activeTab: string;
   title: string;
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
 };
 
 export function FinancePlaceholder({
   activeTab,
   title,
+  currentUser,
+  activeUsers,
 }: FinancePlaceholderProps) {
   return (
-    <FinancePageShell activeTab={activeTab}>
+    <FinancePageShell
+      activeTab={activeTab}
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <div className="mx-auto max-w-[1200px] px-6 py-10">
         <Card className="p-8">
           <p className="text-xs font-semibold tracking-widest text-primary uppercase">

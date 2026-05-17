@@ -7,11 +7,13 @@ import {
 import { AdminShell } from "@/components/admin";
 import { Card, LoadingScreen } from "@/components/ui";
 import { AppUsersManager } from "@/components/settings/app-users-manager";
+import { BackupRestoreCard } from "@/components/settings/backup-restore-card";
 import { ChurchProfileCard } from "@/components/settings/church-profile-card";
 import { FinanceCategoriesManager } from "@/components/settings/finance-categories-manager";
 import { NotificationSettingsCard } from "@/components/settings/notification-settings-card";
 import { ReportSignatoriesManager } from "@/components/settings/report-signatories-manager";
-import { getCurrentAppUser, hasPermission } from "@/lib/admin-access";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
+import { hasPermission } from "@/lib/admin-access";
 import { getAppUsers } from "@/lib/app-users";
 import { getChurchSettings } from "@/lib/church-settings";
 import { getReportSignatories } from "@/lib/report-signatories";
@@ -80,9 +82,9 @@ export default function SettingsPage() {
 }
 
 async function SettingsPageContent() {
-  const [churchSettings, currentUser] = await Promise.all([
+  const [{ currentUser, activeUsers }, churchSettings] = await Promise.all([
+    getAdminViewerData(),
     getChurchSettings(),
-    getCurrentAppUser(),
   ]);
   const canManageChurchProfile = hasPermission(
     currentUser,
@@ -94,13 +96,21 @@ async function SettingsPageContent() {
     currentUser,
     "settings:notifications",
   );
+  const canManageBackupRestore = hasPermission(
+    currentUser,
+    "settings:backup-restore",
+  );
   const canManageSignatories = hasPermission(
     currentUser,
     "settings:signatories",
   );
 
   return (
-    <AdminShell activeSection="">
+    <AdminShell
+      activeSection=""
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <div className="mx-auto max-w-[1200px] px-6 py-10">
         <header className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -186,6 +196,19 @@ async function SettingsPageContent() {
                 </div>
               </div>
             </Card>
+          </SettingsSection>
+
+          <SettingsSection
+            title="Backup and Restore"
+            description="Protect the local-first database with downloadable backups and controlled restore handling."
+          >
+            {canManageBackupRestore ? (
+              <BackupRestoreCard />
+            ) : (
+              <Card className="rounded-xl p-6 text-sm text-text-secondary">
+                Your current role cannot download or restore database backups.
+              </Card>
+            )}
           </SettingsSection>
 
           {canManageSignatories ? (

@@ -2,17 +2,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminShell } from "@/components/admin";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { getMemberFormData } from "./members-data";
 import { MemberForm } from "./member-form";
 
 type EditMemberPageProps = {
   memberId: string;
   from?: string;
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
 };
 
 export async function EditMemberPage({
   memberId,
   from,
+  currentUser,
+  activeUsers,
 }: EditMemberPageProps) {
   const member = await getMemberFormData(memberId);
 
@@ -26,7 +31,12 @@ export async function EditMemberPage({
       : `/admin/members/${member.publicId}`;
 
   return (
-    <AdminShell activeSection="Members" showQuickCreate={false}>
+    <AdminShell
+      activeSection="Members"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+      showQuickCreate={false}
+    >
       <main className="mx-auto max-w-300 px-6 py-8">
         <Link
           href={backHref}

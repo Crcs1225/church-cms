@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Trash2, TrendingDown, TrendingUp } from "lucide-react";
-import { deleteFinanceCategoryAction, saveFinanceCategoryAction } from "@/app/admin/settings/actions";
 import { Badge, Button, Card, DeletionConfirmModal, Input, Label, Modal } from "@/components/ui";
 import type { SettingsCategoryItem } from "@/lib/settings-finance-categories";
 
@@ -20,6 +20,7 @@ export function FinanceCategoriesManager({
   givingCategories,
   expenseCategories,
 }: FinanceCategoriesManagerProps) {
+  const router = useRouter();
   const [editorState, setEditorState] = useState<CategoryEditorState | null>(null);
   const [deletionState, setDeletionState] = useState<CategoryEditorState | null>(null);
   const [isSavePending, startSaveTransition] = useTransition();
@@ -33,18 +34,34 @@ export function FinanceCategoriesManager({
     const formData = new FormData(event.currentTarget);
 
     startSaveTransition(async () => {
-      const result = await saveFinanceCategoryAction(
-        { status: "idle", message: null },
-        formData,
+      const publicId = String(formData.get("publicId") ?? "");
+      const type = String(formData.get("type") ?? "");
+      const isEdit = Boolean(publicId);
+      const routeBase =
+        type === "giving"
+          ? "/api/settings/giving-categories"
+          : "/api/settings/expense-categories";
+      const response = await fetch(
+        isEdit ? `${routeBase}/${publicId}` : routeBase,
+        {
+          method: isEdit ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: String(formData.get("name") ?? ""),
+            isRestricted: formData.get("isRestricted") === "on",
+          }),
+        },
       );
+      const result = await response.json().catch(() => null);
 
-      if (result.status === "error") {
-        setSaveError(result.message ?? "Unable to save category.");
+      if (!response.ok) {
+        setSaveError(result?.error?.message ?? "Unable to save category.");
         return;
       }
 
       setSaveError(null);
       setEditorState(null);
+      router.refresh();
     });
   }
 
@@ -234,22 +251,28 @@ export function FinanceCategoriesManager({
             return;
           }
 
-          const formData = new FormData();
-          formData.set("type", deletionState.type);
-          formData.set("publicId", deletionState.category.publicId);
+          const category = deletionState.category;
           startDeleteTransition(async () => {
-            const result = await deleteFinanceCategoryAction(
-              { status: "idle", message: null },
-              formData,
+            const routeBase =
+              deletionState.type === "giving"
+                ? "/api/settings/giving-categories"
+                : "/api/settings/expense-categories";
+            const response = await fetch(
+              `${routeBase}/${category.publicId}`,
+              {
+                method: "DELETE",
+              },
             );
+            const result = await response.json().catch(() => null);
 
-            if (result.status === "error") {
-              setDeleteError(result.message ?? "Unable to delete category.");
+            if (!response.ok) {
+              setDeleteError(result?.error?.message ?? "Unable to delete category.");
               return;
             }
 
             setDeleteError(null);
             setDeletionState(null);
+            router.refresh();
           });
         }}
       />

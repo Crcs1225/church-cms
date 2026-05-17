@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prepare": "simple-git-hooks",
     "dev": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000 --webpack",
     "dev:turbopack": "next dev",
     "dev:webpack": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000 --webpack",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run lint && npm run test:data",
     "build": "next build",
+    "prebuild": "npm run verify",
     "db:init": "node node_modules/prisma/build/index.js db push",
     "db:generate": "node node_modules/prisma/build/index.js generate",
     "db:push": "node node_modules/prisma/build/index.js db push",
@@ -36,7 +40,12 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "prisma": "^7.8.0",
+    "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run typecheck && npm run lint",
+    "pre-push": "npm run verify && npm run build"
   }
 }

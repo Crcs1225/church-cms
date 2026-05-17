@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
 import { FinanceIncome } from "@/components/finance";
 import { LoadingScreen } from "@/components/ui";
 
@@ -16,6 +17,7 @@ export default async function FinanceIncomePage({
   searchParams,
 }: FinanceIncomePageProps) {
   const { member, category, dateFrom, dateTo, page } = await searchParams;
+  const { currentUser, activeUsers } = await getAdminViewerData();
 
   return (
     <Suspense
@@ -29,6 +31,8 @@ export default async function FinanceIncomePage({
       }
     >
       <FinanceIncome
+        currentUser={currentUser}
+        activeUsers={activeUsers}
         memberQuery={member}
         categorySlug={category}
         dateFrom={dateFrom}

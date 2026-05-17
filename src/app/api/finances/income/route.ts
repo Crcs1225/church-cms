@@ -1,4 +1,4 @@
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import {
   apiError,
@@ -8,6 +8,7 @@ import {
 } from "@/lib/api-utils";
 import { getFinanceIncomePageData } from "@/components/finance/finance-data";
 import { requireRequestPermission } from "@/lib/admin-access";
+import { buildContributionWhere } from "@/lib/finance-filters";
 import { prisma } from "@/lib/prisma";
 
 function formatContribution(contribution: {
@@ -60,9 +61,43 @@ export async function GET(request: NextRequest) {
     page,
     pageSize,
   };
-  const viewData = await getFinanceIncomePageData(filters);
+  const where = buildContributionWhere({
+    memberQuery: filters.memberQuery,
+    categorySlug: filters.categorySlug,
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+  });
+  const [viewData, contributions] = await Promise.all([
+    getFinanceIncomePageData(filters),
+    prisma.contribution.findMany({
+      where,
+      orderBy: [{ receivedAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        member: {
+          select: {
+            publicId: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        category: {
+          select: {
+            name: true,
+            slug: true,
+            isRestricted: true,
+          },
+        },
+      },
+    }),
+  ]);
 
-  return NextResponse.json(viewData);
+  return NextResponse.json({
+    ...viewData,
+    contributions: contributions.map(formatContribution),
+  });
 }
 
 export async function POST(request: NextRequest) {

@@ -8,18 +8,17 @@ import {
   Gauge,
   Mic,
   ReceiptText,
-  Search,
   Settings,
   Users,
   WalletCards,
   RefreshCw,
 } from "lucide-react";
 import { ActiveAdminUserSwitcher } from "./active-admin-user-switcher";
-import { Avatar, Button, Input } from "@/components/ui";
+import { GlobalAdminSearch } from "./global-admin-search";
+import { Avatar, Button } from "@/components/ui";
 import {
+  type AdminUserAccess,
   canAccessAdminPath,
-  getActiveAppUsers,
-  getCurrentAppUser,
 } from "@/lib/admin-access";
 import { cn } from "@/lib/cn";
 import { getChurchSettings } from "@/lib/church-settings";
@@ -33,21 +32,21 @@ const navItems = [
 ];
 
 type AdminShellProps = {
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
   children: ReactNode;
   activeSection?: string;
   showQuickCreate?: boolean;
 };
 
 export async function AdminShell({
+  currentUser,
+  activeUsers,
   children,
   activeSection = "Dashboard",
   showQuickCreate = false,
 }: AdminShellProps) {
-  const [churchSettings, currentUser, activeUsers] = await Promise.all([
-    getChurchSettings(),
-    getCurrentAppUser(),
-    getActiveAppUsers(),
-  ]);
+  const churchSettings = await getChurchSettings();
   const visibleNavItems = navItems.filter((item) =>
     canAccessAdminPath(currentUser, item.href),
   );
@@ -123,16 +122,7 @@ export async function AdminShell({
       <main className="min-h-screen md:ml-sidebar">
         <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background px-4 md:px-6">
           <div className="flex flex-1 items-center gap-4">
-            <div className="relative w-full max-w-md">
-              <Search
-                className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral"
-                aria-hidden
-              />
-              <Input
-                className="bg-surface pl-9"
-                placeholder="Search members, transactions, or records..."
-              />
-            </div>
+            <GlobalAdminSearch />
           </div>
 
           <div className="flex items-center gap-2">

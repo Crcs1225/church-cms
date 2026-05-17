@@ -14,23 +14,41 @@ export function FinanceChart({ months }: FinanceChartProps) {
     <div>
       <div className="flex h-64 w-full items-end justify-between border-b border-border px-2 pt-4">
         {months.map((month) => (
-          <div
-            key={month.key}
-            className="group relative h-full w-12 rounded-t bg-surface-raised"
-          >
-            <div
-              className="absolute bottom-0 left-0 w-1/2 rounded-t bg-primary/80 transition-all"
-              style={{
-                height: `${Math.max(6, (month.incomeCents / maxCents) * 100)}%`,
-              }}
-            />
-            <div
-              className="absolute right-0 bottom-0 w-1/2 rounded-t bg-stone-300/80 transition-all"
-              style={{
-                height: `${Math.max(6, (month.expenseCents / maxCents) * 100)}%`,
-              }}
-            />
-          </div>
+          (() => {
+            const incomeHeight = Math.max(6, Math.round((month.incomeCents / maxCents) * 100));
+            const expenseHeight = Math.max(6, Math.round((month.expenseCents / maxCents) * 100));
+
+            return (
+              <div
+                key={month.key}
+                className="group relative h-full w-12 rounded-t bg-surface-raised"
+              >
+                <svg
+                  className="absolute inset-0 h-full w-full"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  aria-hidden
+                >
+                  <rect
+                    x="0"
+                    y={100 - incomeHeight}
+                    width="50"
+                    height={incomeHeight}
+                    rx="4"
+                    className="fill-primary/80"
+                  />
+                  <rect
+                    x="50"
+                    y={100 - expenseHeight}
+                    width="50"
+                    height={expenseHeight}
+                    rx="4"
+                    className="fill-stone-300/80"
+                  />
+                </svg>
+              </div>
+            );
+          })()
         ))}
       </div>
       <div className="mt-4 flex justify-between px-2">

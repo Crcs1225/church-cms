@@ -1,17 +1,30 @@
 import Link from "next/link";
 import { CheckCircle2, TrendingDown, TrendingUp } from "lucide-react";
 import { Button, Card, Progress } from "@/components/ui";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { FinanceChart } from "./finance-chart";
 import { getFinanceOverviewPageData } from "./finance-data";
 import { FinancePageShell } from "./finance-page-shell";
 import { FinanceStatCard } from "./finance-stat-card";
 import { TransactionTable } from "./transaction-table";
 
-export async function FinanceOverview() {
+type FinanceOverviewProps = {
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
+};
+
+export async function FinanceOverview({
+  currentUser,
+  activeUsers,
+}: FinanceOverviewProps) {
   const overviewData = await getFinanceOverviewPageData();
 
   return (
-    <FinancePageShell activeTab="overview">
+    <FinancePageShell
+      activeTab="overview"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <div className="mx-auto max-w-[1200px] space-y-8 px-6 py-10">
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <FinanceStatCard

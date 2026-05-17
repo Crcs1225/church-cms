@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { CalendarDays, Database, TrendingDown, TrendingUp } from "lucide-react";
 import { Button, Card, Progress } from "@/components/ui";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { FinancePageShell } from "./finance-page-shell";
 import {
   formatCurrency,
@@ -29,9 +30,21 @@ function formatVarianceLabel(currentValue: number, previousValue: number) {
   };
 }
 
-export async function FinanceReports() {
+type FinanceReportsProps = {
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
+};
+
+export async function FinanceReports({
+  currentUser,
+  activeUsers,
+}: FinanceReportsProps) {
   return (
-    <FinancePageShell activeTab="reports">
+    <FinancePageShell
+      activeTab="reports"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <div className="mx-auto max-w-[1200px] space-y-8 px-6 py-8">
         <Suspense fallback={<ReportsSectionFallback title="Report Summary" />}>
           <ReportsSummarySection />

@@ -11,7 +11,7 @@ export function ReportsChart({ months }: ReportsChartProps) {
   );
 
   return (
-    <div className="relative flex h-[300px] items-end justify-between gap-4 px-4">
+    <div className="relative flex h-75 items-end justify-between gap-4 px-4">
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between border-b border-border">
         <div className="h-0 w-full border-t border-stone-100" />
         <div className="h-0 w-full border-t border-stone-100" />
@@ -25,7 +25,7 @@ export function ReportsChart({ months }: ReportsChartProps) {
           className="z-10 flex flex-1 flex-col items-center gap-2"
         >
           <div className="flex h-full w-full items-end justify-center gap-1">
-            <div
+            <div 
               className="w-6 rounded-t-sm bg-stone-300"
               style={{
                 height: `${Math.max(4, (month.expenseCents / maxCents) * 100)}%`,

@@ -1,23 +1,17 @@
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import { AdminAccessDenied } from "@/components/admin/admin-access-denied";
-import {
-  canAccessAdminPath,
-  getActiveAppUsers,
-  getCurrentAppUser,
-} from "@/lib/admin-access";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
+import { canAccessAdminPath } from "@/lib/admin-access";
 
 export default async function AdminLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [headerStore, currentUser, users] = await Promise.all([
-    headers(),
-    getCurrentAppUser(),
-    getActiveAppUsers(),
-  ]);
+  const [headerStore, viewer] = await Promise.all([headers(), getAdminViewerData()]);
   const pathname = headerStore.get("x-pathname") ?? "/admin";
+  const { currentUser, activeUsers: users } = viewer;
 
   if (!canAccessAdminPath(currentUser, pathname)) {
     return (

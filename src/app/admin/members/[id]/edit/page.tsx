@@ -1,4 +1,5 @@
 import { EditMemberPage } from "@/components/members";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
 
 type AdminEditMemberPageProps = {
   params: Promise<{
@@ -15,6 +16,14 @@ export default async function AdminEditMemberPage({
 }: AdminEditMemberPageProps) {
   const { id } = await params;
   const { from } = await searchParams;
+  const { currentUser, activeUsers } = await getAdminViewerData();
 
-  return <EditMemberPage memberId={id} from={from} />;
+  return (
+    <EditMemberPage
+      memberId={id}
+      from={from}
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    />
+  );
 }

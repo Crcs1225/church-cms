@@ -1,8 +1,11 @@
 import { Suspense } from "react";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
 import { FinanceReports } from "@/components/finance";
 import { LoadingScreen } from "@/components/ui";
 
-export default function FinanceReportsPage() {
+export default async function FinanceReportsPage() {
+  const { currentUser, activeUsers } = await getAdminViewerData();
+
   return (
     <Suspense
       fallback={
@@ -14,7 +17,7 @@ export default function FinanceReportsPage() {
         />
       }
     >
-      <FinanceReports />
+      <FinanceReports currentUser={currentUser} activeUsers={activeUsers} />
     </Suspense>
   );
 }

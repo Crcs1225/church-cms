@@ -1,7 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { hasPermission, getCurrentAppUser, isValidAppRole } from "@/lib/admin-access";
+import {
+  ACTIVE_APP_USER_COOKIE,
+  hasPermission,
+  isValidAppRole,
+  resolveCurrentUserByPublicId,
+} from "@/lib/admin-access";
 import { deleteLocalChurchLogo, getChurchLogoUploadError, saveChurchLogo } from "@/lib/church-logo";
 import { getChurchSettings } from "@/lib/church-settings";
 import { prisma } from "@/lib/prisma";
@@ -32,7 +38,9 @@ function errorState(message: string): SettingsActionState {
 }
 
 async function requireSettingsPermission(permission: Parameters<typeof hasPermission>[1]) {
-  const user = await getCurrentAppUser();
+  const cookieStore = await cookies();
+  const publicId = cookieStore.get(ACTIVE_APP_USER_COOKIE)?.value ?? null;
+  const user = await resolveCurrentUserByPublicId(publicId);
 
   if (!user || !hasPermission(user, permission)) {
     return errorState("Your current role is not allowed to perform this action.");
@@ -44,6 +52,11 @@ async function requireSettingsPermission(permission: Parameters<typeof hasPermis
 function revalidateSettingsSurfaces() {
   revalidatePath("/admin");
   revalidatePath("/admin/settings");
+  revalidatePath("/admin/members");
+  revalidatePath("/admin/events");
+  revalidatePath("/admin/finances");
+  revalidatePath("/admin/finances/income");
+  revalidatePath("/admin/finances/expenses");
   revalidatePath("/admin/finances/income/print");
   revalidatePath("/admin/finances/expenses/print");
 }

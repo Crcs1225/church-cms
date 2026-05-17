@@ -1,8 +1,11 @@
 import { getFinanceIncomePageData } from "./finance-data";
 import { FinanceIncomeClient } from "./finance-income-client";
 import { FinancePageShell } from "./finance-page-shell";
+import type { AdminUserAccess } from "@/lib/admin-access";
 
 type FinanceIncomeProps = {
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
   memberQuery?: string;
   categorySlug?: string;
   dateFrom?: string;
@@ -11,6 +14,8 @@ type FinanceIncomeProps = {
 };
 
 export async function FinanceIncome({
+  currentUser,
+  activeUsers,
   memberQuery = "",
   categorySlug = "",
   dateFrom = "",
@@ -27,7 +32,11 @@ export async function FinanceIncome({
   });
 
   return (
-    <FinancePageShell activeTab="income">
+    <FinancePageShell
+      activeTab="income"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <FinanceIncomeClient
         initialData={initialData}
         initialFilters={{

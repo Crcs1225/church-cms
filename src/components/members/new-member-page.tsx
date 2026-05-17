@@ -2,11 +2,25 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AdminShell } from "@/components/admin";
 import { Avatar } from "@/components/ui";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { MemberForm } from "./member-form";
 
-export function NewMemberPage() {
+type NewMemberPageProps = {
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
+};
+
+export function NewMemberPage({
+  currentUser,
+  activeUsers,
+}: NewMemberPageProps) {
   return (
-    <AdminShell activeSection="Members" showQuickCreate={false}>
+    <AdminShell
+      activeSection="Members"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+      showQuickCreate={false}
+    >
       <div className="sticky top-16 z-30 border-b border-border bg-background/85 px-6 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between">
           <div className="flex items-center gap-4">

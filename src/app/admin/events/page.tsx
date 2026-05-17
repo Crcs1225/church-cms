@@ -1,14 +1,21 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
 import { getEventsListData } from "@/components/events";
 import { AdminShell } from "@/components/admin";
 import { EventTable } from "@/components/events";
 import { Button, Card } from "@/components/ui";
 import { Plus, Calendar as CalendarIcon } from "lucide-react";
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  const { currentUser, activeUsers } = await getAdminViewerData();
+
   return (
-    <AdminShell activeSection="Events">
+    <AdminShell
+      activeSection="Events"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <div className="space-y-lg p-lg">
         {/* Header */}
         <div className="flex flex-col gap-lg md:flex-row md:items-center md:justify-between">

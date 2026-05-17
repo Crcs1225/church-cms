@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
 import { FinanceExpenses } from "@/components/finance";
 import { LoadingScreen } from "@/components/ui";
 
@@ -15,6 +16,7 @@ export default async function FinanceExpensesPage({
   searchParams,
 }: FinanceExpensesPageProps) {
   const { category, dateFrom, dateTo, page } = await searchParams;
+  const { currentUser, activeUsers } = await getAdminViewerData();
 
   return (
     <Suspense
@@ -28,6 +30,8 @@ export default async function FinanceExpensesPage({
       }
     >
       <FinanceExpenses
+        currentUser={currentUser}
+        activeUsers={activeUsers}
         categorySlug={category}
         dateFrom={dateFrom}
         dateTo={dateTo}

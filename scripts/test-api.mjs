@@ -1,4 +1,58 @@
+import Database from "better-sqlite3";
+import path from "node:path";
+
 const baseUrl = process.env.API_BASE_URL ?? "http://127.0.0.1:3000";
+const databasePath =
+  process.env.SQLITE_DATABASE_PATH ??
+  path.join(process.cwd(), "data", "church-management.sqlite");
+
+function getBackupAuthorizedCookie() {
+  const db = new Database(databasePath, { readonly: true });
+
+  try {
+    const user = db
+      .prepare(`
+        SELECT public_id AS publicId
+        FROM app_users
+        WHERE status = 'active' AND lower(role) IN ('admin', 'lead pastor')
+        ORDER BY role ASC, full_name ASC
+        LIMIT 1
+      `)
+      .get();
+
+    if (!user?.publicId) {
+      throw new Error("Could not find an active admin user for backup smoke testing.");
+    }
+
+    return user.publicId;
+  } finally {
+    db.close();
+  }
+}
+
+function getBackupUnauthorizedUserPublicId() {
+  const db = new Database(databasePath, { readonly: true });
+
+  try {
+    const user = db
+      .prepare(`
+        SELECT public_id AS publicId
+        FROM app_users
+        WHERE status = 'active' AND lower(role) IN ('finance lead', 'auditor', 'secretary')
+        ORDER BY role ASC, full_name ASC
+        LIMIT 1
+      `)
+      .get();
+
+    if (!user?.publicId) {
+      throw new Error("Could not find an active non-privileged admin user for backup denial testing.");
+    }
+
+    return user.publicId;
+  } finally {
+    db.close();
+  }
+}
 
 const checks = [
   {
@@ -42,6 +96,111 @@ for (const check of checks) {
 
   console.log(`${check.path} ok`);
 }
+
+const backupUserPublicId = getBackupAuthorizedCookie();
+const unauthorizedBackupUserPublicId = getBackupUnauthorizedUserPublicId();
+const selectActiveUserResponse = await fetch(`${baseUrl}/api/settings/active-user`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    publicId: backupUserPublicId,
+  }),
+});
+
+if (!selectActiveUserResponse.ok) {
+  throw new Error(
+    `/api/settings/active-user POST returned ${selectActiveUserResponse.status}.`,
+  );
+}
+
+const activeUserCookie = selectActiveUserResponse.headers.get("set-cookie");
+
+if (!activeUserCookie?.includes("active_admin_user=")) {
+  throw new Error("Selecting the active admin user did not return the expected cookie.");
+}
+
+const backupResponse = await fetch(`${baseUrl}/api/settings/database-backup`, {
+  headers: {
+    cookie: activeUserCookie,
+  },
+});
+
+if (!backupResponse.ok) {
+  throw new Error(
+    `/api/settings/database-backup returned ${backupResponse.status}.`,
+  );
+}
+
+const backupContentType = backupResponse.headers.get("content-type") ?? "";
+const backupDisposition = backupResponse.headers.get("content-disposition") ?? "";
+const backupFile = Buffer.from(await backupResponse.arrayBuffer());
+
+if (!backupContentType.includes("application/x-sqlite3")) {
+  throw new Error("Database backup did not return a SQLite content type.");
+}
+
+if (!backupDisposition.includes("attachment;")) {
+  throw new Error("Database backup did not return as a downloadable attachment.");
+}
+
+if (!backupDisposition.includes(".sqlite")) {
+  throw new Error("Database backup filename did not include the .sqlite extension.");
+}
+
+if (backupFile.byteLength === 0) {
+  throw new Error("Database backup response was empty.");
+}
+
+console.log("/api/settings/database-backup download ok");
+
+const selectUnauthorizedUserResponse = await fetch(`${baseUrl}/api/settings/active-user`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    publicId: unauthorizedBackupUserPublicId,
+  }),
+});
+
+if (!selectUnauthorizedUserResponse.ok) {
+  throw new Error(
+    `/api/settings/active-user POST for unauthorized backup user returned ${selectUnauthorizedUserResponse.status}.`,
+  );
+}
+
+const unauthorizedActiveUserCookie = selectUnauthorizedUserResponse.headers.get("set-cookie");
+
+if (!unauthorizedActiveUserCookie?.includes("active_admin_user=")) {
+  throw new Error(
+    "Selecting the unauthorized backup test user did not return the expected cookie.",
+  );
+}
+
+const deniedBackupResponse = await fetch(`${baseUrl}/api/settings/database-backup`, {
+  headers: {
+    cookie: unauthorizedActiveUserCookie,
+  },
+});
+
+if (deniedBackupResponse.status !== 403) {
+  throw new Error(
+    `/api/settings/database-backup denial check returned ${deniedBackupResponse.status} instead of 403.`,
+  );
+}
+
+const deniedBackupPayload = await deniedBackupResponse.json();
+
+if (
+  typeof deniedBackupPayload.error?.message !== "string" ||
+  !deniedBackupPayload.error.message.includes("role does not allow")
+) {
+  throw new Error("Database backup denial check did not return the expected error payload.");
+}
+
+console.log("/api/settings/database-backup permission denied ok");
 
 const membersResponse = await fetch(`${baseUrl}/api/members?pageSize=1`);
 

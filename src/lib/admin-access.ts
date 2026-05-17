@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { apiError, type ApiErrorCode } from "@/lib/api-utils";
 import { APP_ROLE_OPTIONS, type AppRole } from "@/lib/app-roles";
@@ -20,7 +19,8 @@ export type AppPermission =
   | "settings:notifications"
   | "settings:signatories"
   | "settings:categories"
-  | "settings:users";
+  | "settings:users"
+  | "settings:backup-restore";
 
 export type AdminUserAccess = {
   publicId: string;
@@ -52,6 +52,7 @@ const rolePermissionMap: Record<string, AppPermission[]> = {
     "settings:signatories",
     "settings:categories",
     "settings:users",
+    "settings:backup-restore",
   ],
   admin: [
     "dashboard:view",
@@ -68,6 +69,7 @@ const rolePermissionMap: Record<string, AppPermission[]> = {
     "settings:signatories",
     "settings:categories",
     "settings:users",
+    "settings:backup-restore",
   ],
   finance_lead: [
     "dashboard:view",
@@ -216,7 +218,7 @@ async function findAppUserByPublicId(publicId: string) {
   });
 }
 
-async function resolveCurrentUserByPublicId(publicId: string | null) {
+export async function resolveCurrentUserByPublicId(publicId: string | null) {
   if (publicId) {
     const user = await findAppUserByPublicId(publicId);
 
@@ -227,14 +229,6 @@ async function resolveCurrentUserByPublicId(publicId: string | null) {
 
   return findFallbackAppUser();
 }
-
-export async function getCurrentAppUser(): Promise<AdminUserAccess | null> {
-  const cookieStore = await cookies();
-  const publicId = cookieStore.get(ACTIVE_APP_USER_COOKIE)?.value ?? null;
-
-  return resolveCurrentUserByPublicId(publicId);
-}
-
 export async function resolveRequestAppUser(
   request: NextRequest,
 ): Promise<AdminUserAccess | null> {
@@ -261,6 +255,7 @@ function permissionDeniedMessage(permission: AppPermission) {
     case "settings:signatories":
     case "settings:categories":
     case "settings:users":
+    case "settings:backup-restore":
       return "Your role does not allow this settings action.";
     default:
       return "Your role does not allow this action.";

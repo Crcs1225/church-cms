@@ -1,25 +1,6 @@
 import type { Metadata } from "next";
-import { Fira_Code, Playfair_Display, Source_Sans_3 } from "next/font/google";
 import { APP_TITLE, CHURCH_NAME_FULL, CHURCH_NAME_SHORT } from "@/lib/branding";
 import "./globals.css";
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: "700",
-});
-
-const sourceSans = Source_Sans_3({
-  variable: "--font-source-sans",
-  subsets: ["latin"],
-  weight: ["400", "600"],
-});
-
-const firaCode = Fira_Code({
-  variable: "--font-fira-code",
-  subsets: ["latin"],
-  weight: "400",
-});
 
 export const metadata: Metadata = {
   title: APP_TITLE,
@@ -32,10 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${playfairDisplay.variable} ${sourceSans.variable} ${firaCode.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

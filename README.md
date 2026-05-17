@@ -10,6 +10,8 @@ The app currently focuses on admin workflows for:
 - members
 - finances: overview, income, expenses, reports
 - events
+- settings and admin configuration
+- global header search across pages and core records
 
 The current architecture is local-first. Data is stored in SQLite on the device, with future sync work planned later.
 
@@ -26,7 +28,7 @@ The current architecture is local-first. Data is stored in SQLite on the device,
 
 - Prisma schema: `prisma/schema.prisma`
 - SQLite database: `data/church-management.sqlite`
-- Prisma client: `src/generated/prisma`
+- Prisma client: `@prisma/client` in `node_modules`
 - Prisma singleton: `src/lib/prisma.ts`
 - API routes: `src/app/api`
 - Admin pages: `src/app/admin`
@@ -64,27 +66,37 @@ cmd /c npm run db:seed
 Preferred on this Windows setup:
 
 ```bash
-cmd /c npm run dev:webpack
+cmd /c npm run dev
 ```
 
-Fallback standard dev command:
+Explicit Turbopack command if you need to test it separately:
 
 ```bash
-cmd /c npm run dev
+cmd /c npm run dev:turbopack
 ```
 
 ## Windows Notes
 
 - If `npm.ps1` is blocked in PowerShell, use `cmd /c npm ...`.
 - If Turbopack throws `better-sqlite3` junction errors on Windows, use:
+- `npm run dev` is already configured to use webpack by default in this repo.
+- If you explicitly run Turbopack and hit `better-sqlite3` junction errors on Windows, switch back to:
 
 ```bash
-cmd /c npm run dev:webpack
+cmd /c npm run dev
 ```
 
 - If you access the dev server from `192.168.0.112`, `allowedDevOrigins` is already configured in `next.config.ts`.
 
 ## Verification
+
+Automated checks now run in two places:
+
+- `pre-commit`: `npm run typecheck` and `npm run lint`
+- `pre-push`: `npm run verify` and `npm run build`
+- GitHub Actions: mirrors the push checks on every push and pull request
+
+`test:api` is still manual because it requires the Next dev server to be running.
 
 TypeScript:
 
@@ -117,21 +129,33 @@ cmd /c npm run test:api
 Implemented now:
 
 - member CRUD and profile views
+- member table pagination
 - income create, list, update, delete, and bulk delete
+- income filtering, export CSV, print/PDF pages, and real pagination
 - expense create, list, update, and delete
+- expense filtering, export CSV, print/PDF pages, and real pagination
 - event create, list, detail, update, and delete
+- global header search for pages, members, events, income, and expenses
 - finance reports backed by live data
 - dashboard backed by live members, finance, event, and activity data
 - activity logging for core write flows
+- settings flows for church profile, app users, finance categories, notifications, and report signatories
+- admin loading screens and settings/access groundwork
+
+Recent additions:
+
+- `/api/search` provides permission-aware grouped search results for the admin header
+- the sticky admin header supports keyboard-first search with `Ctrl+K` and `/`
 
 Not implemented yet:
 
-- auth and roles
+- completed authentication flow
+- fully enforced roles and permissions across all admin routes and APIs
 - backup and restore flows
-- finance CSV export
-- finance print-to-PDF reports
+- member and event export flows
 - cloud sync UI and actual sync engine
 - member portal
+- production-ready secret/config handling for local integration files
 
 ## Backlog
 

@@ -8,6 +8,7 @@ This repository contains a local-first administration app for The New Testament 
 - giving and expenses
 - events
 - admin reporting
+- settings and admin configuration
 
 The project is optimized for a single-device local workflow first, with future cloud sync planned later.
 
@@ -20,7 +21,10 @@ The current app includes:
 - income management with member-linked and anonymous contributions
 - expense management
 - finance reporting with six-month trend data and fund allocation status
+- finance CSV export and print/PDF flows
 - event list, calendar, create, detail, edit, and delete flows
+- settings flows for church profile, app users, finance categories, notifications, and report signatories
+- global admin header search across pages, members, events, income, and expenses
 
 ## Architecture
 
@@ -56,6 +60,9 @@ Current runtime shape:
 - `FundAllocation`
 - `Event`
 - `ActivityLog`
+- `AppUser`
+- `ChurchSettings`
+- `ReportSignatory`
 - `ReportSnapshot`
 
 ## API Surface
@@ -69,18 +76,23 @@ Current route groups:
 - `/api/finances/expenses`
 - `/api/finances/summary`
 - `/api/events`
+- `/api/search`
+- `/api/settings`
 
 ## Current Constraints
 
-- No auth or roles yet
+- No completed authentication flow yet
+- Roles and permissions are in progress but not fully enforced everywhere
 - No backup/restore workflow yet
-- Finance CSV export is implemented
-- Finance print-friendly PDF workflow is implemented through browser print pages
+- Member and event export workflows are not implemented yet
 - No real cloud sync implementation yet
 - Some sync-related UI is intentionally descriptive rather than functional
+- Local integration/config secrets must not be committed
 
 ## Development Notes
 
 - Use webpack dev mode on this Windows setup if Turbopack fails with `better-sqlite3` junction errors.
 - Prefer server reads and browser-side writes through API routes.
 - Reuse existing admin, finance, members, and UI patterns before adding new abstractions.
+- Real pagination is now implemented on finance and members tables.
+- The admin header now includes a permission-aware global search entry point.

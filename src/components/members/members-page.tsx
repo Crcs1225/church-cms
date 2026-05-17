@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { AdminShell } from "@/components/admin";
 import { Button, Card } from "@/components/ui";
+import type { AdminUserAccess } from "@/lib/admin-access";
 import { getMembersSummaryData, getMembersTableData } from "./members-data";
 import { MemberFilters } from "./member-filters";
 import { MemberStatCard } from "./member-stat-card";
@@ -17,13 +18,21 @@ import { MemberTable } from "./member-table";
 
 export async function MembersPage({
   page = 1,
+  currentUser,
+  activeUsers,
 }: {
   page?: number;
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
 }) {
   const { activeMembers } = await getMembersSummaryData();
 
   return (
-    <AdminShell activeSection="Members">
+    <AdminShell
+      activeSection="Members"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <header className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>

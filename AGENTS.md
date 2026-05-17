@@ -17,6 +17,9 @@ The app is currently focused on admin workflows for:
 - Dashboard
 - Members
 - Finances: overview, income, expenses, reports
+- Events
+- Settings and admin configuration
+- Global header search for pages and core records
 - Local-first data storage before future sync work
 
 ## Working Principles
@@ -66,7 +69,7 @@ Prisma is the source of truth for the schema.
 
 - Schema: `prisma/schema.prisma`
 - SQLite database: `data/church-management.sqlite`
-- Prisma client output: `src/generated/prisma`
+- Prisma client package: `@prisma/client` in `node_modules`
 - Prisma singleton: `src/lib/prisma.ts`
 - Seed script: `scripts/seed-db.mjs`
 
@@ -98,6 +101,7 @@ Important routes:
 - `GET /api/finances/expenses`
 - `POST /api/finances/expenses`
 - `GET /api/finances/summary`
+- `GET /api/search`
 
 Shared API helpers live in `src/lib/api-utils.ts`.
 
@@ -120,6 +124,7 @@ Use existing components and visual patterns before adding new abstractions.
 - Avoid landing-page or marketing-style sections for app screens.
 - Avoid inline styles.
 - Reuse universal components when possible instead of introducing near-duplicate versions.
+- Global header search should stay permission-aware and return direct navigation targets where practical.
 - Every form control must have an accessible name. For `select`, include a visible/sr-only label plus `aria-label` and `title` if analyzer warnings appear.
 - Floating action buttons should be contextual. Finance income FAB only belongs on the income tab; expense FAB only belongs on the expenses tab.
 - The default `AdminShell` quick-create FAB is disabled by default to prevent confusing cross-page actions.

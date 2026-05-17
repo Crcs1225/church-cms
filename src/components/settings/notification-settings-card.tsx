@@ -1,11 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { BellRing, ShieldCheck, Users } from "lucide-react";
-import {
-  INITIAL_SETTINGS_ACTION_STATE,
-  toggleNotificationSettingAction,
-} from "@/app/admin/settings/actions";
 import { Card } from "@/components/ui";
 import type { ChurchSettingsData } from "@/lib/church-settings";
 
@@ -42,10 +39,10 @@ function Switch({ checked }: { checked: boolean }) {
 export function NotificationSettingsCard({
   settings,
 }: NotificationSettingsCardProps) {
-  const [state, action, isPending] = useActionState(
-    toggleNotificationSettingAction,
-    INITIAL_SETTINGS_ACTION_STATE,
-  );
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [localSettings, setLocalSettings] = useState(settings);
 
   const items: NotificationItem[] = [
     {
@@ -53,7 +50,7 @@ export function NotificationSettingsCard({
       title: "Daily Digest",
       description:
         "Get a summary of new attendance and giving every morning at 8:00 AM.",
-      enabled: settings.dailyDigestEnabled,
+      enabled: localSettings.dailyDigestEnabled,
       icon: BellRing,
       iconClassName: "bg-primary/10 text-primary",
     },
@@ -62,7 +59,7 @@ export function NotificationSettingsCard({
       title: "New Member Alerts",
       description:
         "Immediate email notification when a new visitor fills out a connect card.",
-      enabled: settings.newMemberAlertsEnabled,
+      enabled: localSettings.newMemberAlertsEnabled,
       icon: Users,
       iconClassName: "bg-warning/10 text-warning",
     },
@@ -71,7 +68,7 @@ export function NotificationSettingsCard({
       title: "Low Budget Warning",
       description:
         "Notification if an expense category exceeds 90% of its monthly allocation.",
-      enabled: settings.lowBudgetWarningEnabled,
+      enabled: localSettings.lowBudgetWarningEnabled,
       icon: ShieldCheck,
       iconClassName: "bg-surface-raised text-text-secondary",
     },
@@ -83,9 +80,38 @@ export function NotificationSettingsCard({
         const Icon = item.icon;
 
         return (
-          <form key={item.key} action={action}>
-            <input type="hidden" name="key" value={item.key} />
-            <input type="hidden" name="value" value={String(!item.enabled)} />
+          <form
+            key={item.key}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setError(null);
+
+              startTransition(async () => {
+                const nextValue = !item.enabled;
+                const response = await fetch("/api/settings/notifications", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    [item.key]: nextValue,
+                  }),
+                });
+                const payload = await response.json().catch(() => null);
+
+                if (!response.ok) {
+                  setError(
+                    payload?.error?.message ?? "Unable to update notification setting.",
+                  );
+                  return;
+                }
+
+                setLocalSettings((current) => ({
+                  ...current,
+                  [item.key]: nextValue,
+                }));
+                router.refresh();
+              });
+            }}
+          >
             <button
               type="submit"
               className={`flex w-full flex-col gap-4 px-6 py-5 text-left transition-colors hover:bg-primary/5 md:flex-row md:items-center md:justify-between ${
@@ -116,9 +142,9 @@ export function NotificationSettingsCard({
           </form>
         );
       })}
-      {state.status === "error" && state.message ? (
+      {error ? (
         <div className="border-t border-border px-6 py-3 text-sm text-red-700">
-          {state.message}
+          {error}
         </div>
       ) : null}
     </Card>

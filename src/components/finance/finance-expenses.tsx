@@ -4,13 +4,20 @@ import {
 } from "./finance-data";
 import { FinanceExpensesClient } from "./finance-expenses-client";
 import { FinancePageShell } from "./finance-page-shell";
+import type { AdminUserAccess } from "@/lib/admin-access";
 
 export async function FinanceExpenses({
+  currentUser,
+  activeUsers,
   categorySlug = "",
   dateFrom = "",
   dateTo = "",
   page = 1,
-}: FinanceExpensesFilters & { page?: number } = {}) {
+}: (FinanceExpensesFilters & {
+  currentUser: AdminUserAccess | null;
+  activeUsers: AdminUserAccess[];
+  page?: number;
+})) {
   const initialData = await getFinanceExpensesViewData({
     categorySlug,
     dateFrom,
@@ -20,7 +27,11 @@ export async function FinanceExpenses({
   });
 
   return (
-    <FinancePageShell activeTab="expenses">
+    <FinancePageShell
+      activeTab="expenses"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <FinanceExpensesClient
         initialData={initialData}
         initialFilters={{

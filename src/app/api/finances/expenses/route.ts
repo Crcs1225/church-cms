@@ -7,6 +7,7 @@ import {
 } from "@/lib/api-utils";
 import { getFinanceExpensesViewData } from "@/components/finance/finance-data";
 import { requireRequestPermission } from "@/lib/admin-access";
+import { buildExpenseWhere } from "@/lib/finance-filters";
 import { prisma } from "@/lib/prisma";
 
 function formatExpense(expense: {
@@ -49,9 +50,34 @@ export async function GET(request: NextRequest) {
     page,
     pageSize,
   };
-  const viewData = await getFinanceExpensesViewData(filters);
+  const where = buildExpenseWhere({
+    categorySlug: filters.categorySlug,
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+    query: searchParams.get("query"),
+  });
+  const [viewData, expenses] = await Promise.all([
+    getFinanceExpensesViewData(filters),
+    prisma.expense.findMany({
+      where,
+      orderBy: [{ paidAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    }),
+  ]);
 
-  return NextResponse.json(viewData);
+  return NextResponse.json({
+    ...viewData,
+    expenses: expenses.map(formatExpense),
+  });
 }
 
 export async function POST(request: NextRequest) {

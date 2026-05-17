@@ -24,6 +24,7 @@ import {
   getDashboardLocalDataStatus,
   getDashboardRecentMembersData,
 } from "@/components/admin";
+import { getAdminViewerData } from "@/app/admin/_lib/admin-viewer";
 import { Avatar, Badge, Button, Card, LoadingScreen, Progress } from "@/components/ui";
 
 const quickActions = [
@@ -51,8 +52,14 @@ export default function AdminDashboardPage() {
 }
 
 async function AdminDashboardContent() {
+  const { currentUser, activeUsers } = await getAdminViewerData();
+
   return (
-    <AdminShell activeSection="Dashboard">
+    <AdminShell
+      activeSection="Dashboard"
+      currentUser={currentUser}
+      activeUsers={activeUsers}
+    >
       <div className="mx-auto max-w-350 p-6">
         <header className="mb-6">
           <h2 className="font-display text-3xl leading-tight">

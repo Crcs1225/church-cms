@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Trash2, UserCog } from "lucide-react";
-import { deleteAppUserAction, saveAppUserAction } from "@/app/admin/settings/actions";
 import { Avatar, Badge, Button, Card, DeletionConfirmModal, Input, Label, Modal } from "@/components/ui";
 import { APP_ROLE_OPTIONS } from "@/lib/app-roles";
 import type { AppUserItem } from "@/lib/app-users";
@@ -14,6 +14,7 @@ type AppUsersManagerProps = {
 const statusOptions = ["active", "inactive"];
 
 export function AppUsersManager({ users }: AppUsersManagerProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AppUserItem | null>(null);
   const [deletingUser, setDeletingUser] = useState<AppUserItem | null>(null);
@@ -28,19 +29,33 @@ export function AppUsersManager({ users }: AppUsersManagerProps) {
     const formData = new FormData(event.currentTarget);
 
     startSaveTransition(async () => {
-      const result = await saveAppUserAction(
-        { status: "idle", message: null },
-        formData,
+      const isEdit = Boolean(editingUser?.publicId);
+      const response = await fetch(
+        isEdit
+          ? `/api/settings/app-users/${editingUser?.publicId ?? ""}`
+          : "/api/settings/app-users",
+        {
+          method: isEdit ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: String(formData.get("fullName") ?? ""),
+            email: String(formData.get("email") ?? ""),
+            role: String(formData.get("role") ?? ""),
+            status: String(formData.get("status") ?? "active"),
+          }),
+        },
       );
+      const result = await response.json().catch(() => null);
 
-      if (result.status === "error") {
-        setSaveError(result.message ?? "Unable to save admin user.");
+      if (!response.ok) {
+        setSaveError(result?.error?.message ?? "Unable to save admin user.");
         return;
       }
 
       setSaveError(null);
       setOpen(false);
       setEditingUser(null);
+      router.refresh();
     });
   }
 
@@ -238,18 +253,22 @@ export function AppUsersManager({ users }: AppUsersManagerProps) {
           const formData = new FormData();
           formData.set("publicId", deletingUser.publicId);
           startDeleteTransition(async () => {
-            const result = await deleteAppUserAction(
-              { status: "idle", message: null },
-              formData,
+            const response = await fetch(
+              `/api/settings/app-users/${deletingUser.publicId}`,
+              {
+                method: "DELETE",
+              },
             );
+            const result = await response.json().catch(() => null);
 
-            if (result.status === "error") {
-              setDeleteError(result.message ?? "Unable to delete admin user.");
+            if (!response.ok) {
+              setDeleteError(result?.error?.message ?? "Unable to delete admin user.");
               return;
             }
 
             setDeleteError(null);
             setDeletingUser(null);
+            router.refresh();
           });
         }}
       />

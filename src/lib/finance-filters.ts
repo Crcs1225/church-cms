@@ -1,4 +1,4 @@
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from "@prisma/client";
 
 type FinanceDateRange = {
   start: Date | null;
